@@ -24,11 +24,21 @@ export default function AboutPage() {
               </span>
             </div>
           </Link>
-          <nav className="nav-actions">
+
+          {/* Centered Navigation Menu */}
+          <nav className="nav-center">
             <Link href="/" className="nav-link">Home</Link>
-            <Link href="/about" className="nav-link" style={{ color: 'var(--primary-color)', fontWeight: 700 }}>About Us</Link>
-            <Link href="/book" className="btn primary sm-btn">Book Appointment</Link>
+            <Link href="/about" className="nav-link active-link">About Us</Link>
+            <Link href="/#treatments" className="nav-link">Treatments</Link>
+            <Link href="/about#rehabilitation" className="nav-link">Rehabilitation</Link>
           </nav>
+
+          {/* Right Action & Registration Menu */}
+          <div className="nav-actions">
+            <Link href="/login" className="nav-link">Login</Link>
+            <Link href="/register" className="btn outline sm-btn">Register</Link>
+            <Link href="/book" className="btn primary sm-btn">Book Appointment</Link>
+          </div>
         </div>
       </header>
 

@@ -19,13 +19,21 @@ export default function LandingPage() {
               </span>
             </div>
           </Link>
-          <nav className="nav-actions">
-            <Link href="/about" className="nav-link" style={{ fontWeight: 600, color: 'var(--primary-color)' }}>About Us</Link>
+
+          {/* Centered Navigation Menu */}
+          <nav className="nav-center">
+            <Link href="/" className="nav-link">Home</Link>
+            <Link href="/about" className="nav-link nav-highlight">About Us</Link>
             <Link href="#treatments" className="nav-link">Treatments</Link>
+            <Link href="/about#rehabilitation" className="nav-link">Rehabilitation</Link>
+          </nav>
+
+          {/* Right Action & Registration Menu */}
+          <div className="nav-actions">
             <Link href="/login" className="nav-link">Login</Link>
             <Link href="/register" className="btn outline sm-btn">Register</Link>
             <Link href="/book" className="btn primary sm-btn">Book Appointment</Link>
-          </nav>
+          </div>
         </div>
       </header>
 
