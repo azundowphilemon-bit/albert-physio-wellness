@@ -50,25 +50,175 @@ export default function LandingPage() {
         {/* Section Divider */}
         <div className="section-divider" />
 
-        {/* Services */}
+        {/* Services / Treatments Showcase (Luxury Resort Catalog Style) */}
         <section className="services-section bg-mint fade-in" style={{ animationDelay: '0.4s' }}>
           <div className="container" style={{ display: 'block', padding: '5rem 2rem' }}>
             <div className="section-title">
-              <span className="section-badge">What We Offer</span>
-              <h2>Our Premium Services</h2>
-              <p>Specialized treatments for optimal recovery and long-term wellness</p>
+              <span className="section-badge">Comprehensive Clinical Treatments</span>
+              <h2>Our Specialized Physiotherapy Programs</h2>
+              <p>State-of-the-art rehabilitation, hands-on physical therapy, and personalized recovery protocols</p>
             </div>
-            <div className="services-grid">
+            
+            <div className="treatments-showcase-grid">
               {[
-                { icon: '🖐️', title: 'Manual Therapy', desc: 'Hands-on techniques to mobilize joints, relieve tension, and improve your functional range of motion.' },
-                { icon: '⚡', title: 'Advanced Rehab', desc: 'State-of-the-art shockwave and ultrasound treatments for chronic pain and deep tissue repair.' },
-                { icon: '🏋️', title: 'Sports Physiotherapy', desc: 'Targeted rehabilitation plans designed for athletes to quickly return to peak performance.' },
-                { icon: '🧘', title: 'Post-Surgery Recovery', desc: 'Safe, guided rehabilitative exercises to rebuild strength following orthopedic operations.' },
-              ].map(({ icon, title, desc }) => (
-                <div key={title} className="service-card">
-                  <div className="service-icon">{icon}</div>
-                  <h3>{title}</h3>
-                  <p>{desc}</p>
+                {
+                  id: 'manual-therapy',
+                  title: 'Manual Therapy & Spinal Realignment',
+                  badge: 'Hands-On Specialty',
+                  image: '/treatments/manual-therapy.jpg',
+                  duration: '45–60 Min',
+                  type: 'Spine & Joint Mobilization',
+                  description: 'Expert hands-on mobilization and soft tissue manipulation to decompress restricted spinal segments, ease muscle guarding, and treat sciatica and chronic back tension.',
+                  highlights: [
+                    'Targeted spinal decompression & joint realignment',
+                    'Rapid nerve root and lumbar spasm relief',
+                    'Posture ergonomics & core stabilization'
+                  ],
+                  bookingParam: 'manual-therapy'
+                },
+                {
+                  id: 'sports-physio',
+                  title: 'Sports Physiotherapy & Athletic Rehab',
+                  badge: 'Athletic Recovery',
+                  image: '/treatments/sports-physio.jpg',
+                  duration: '45–60 Min',
+                  type: 'Kinetic Performance',
+                  description: 'Specialized rehabilitation protocols for athletes and active individuals recovering from muscle tears, ankle sprains, ACL/meniscus injuries, and rotator cuff strains.',
+                  highlights: [
+                    'Comprehensive biomechanical movement screening',
+                    'Accelerated soft-tissue repair protocols',
+                    'Progressive loading & return-to-sport testing'
+                  ],
+                  bookingParam: 'sports-physio'
+                },
+                {
+                  id: 'advanced-rehab',
+                  title: 'Advanced Electrotherapy & Deep Ultrasound',
+                  badge: 'Cutting-Edge Modalities',
+                  image: '/treatments/advanced-rehab.jpg',
+                  duration: '45–60 Min',
+                  type: 'Cellular Healing',
+                  description: 'Non-invasive therapeutic ultrasound and neuromuscular electrical stimulation designed to stimulate deep collagen healing, break down fibrous adhesions, and resolve stubborn pain.',
+                  highlights: [
+                    'High-frequency therapeutic ultrasound therapy',
+                    'Neuromuscular stimulation & muscle re-education',
+                    'Chronic tendonitis, bursitis & calcification care'
+                  ],
+                  bookingParam: 'advanced-rehab'
+                },
+                {
+                  id: 'post-surgery',
+                  title: 'Post-Surgical Orthopedic Recovery',
+                  badge: 'Surgeon-Aligned Care',
+                  image: '/treatments/post-surgery.jpg',
+                  duration: '45–60 Min',
+                  type: 'Guided Progression',
+                  description: 'Structured, physician-coordinated physical rehabilitation following total knee/hip replacements, ligament reconstructions, and fracture fixations.',
+                  highlights: [
+                    'Gentle passive-to-active range of motion progression',
+                    'Adhesion and scar tissue restriction prevention',
+                    'Independent gait retraining and balance recovery'
+                  ],
+                  bookingParam: 'post-surgery'
+                },
+                {
+                  id: 'lymphatic-drainage',
+                  title: 'Medical Lymphatic Drainage & Edema Care',
+                  badge: 'Circulation & Swelling Relief',
+                  image: '/treatments/lymphatic-drainage.jpg',
+                  duration: '45–60 Min',
+                  type: 'Gentle Decongestive Therapy',
+                  description: 'Specialized rhythmic gentle manual therapy that stimulates the lymphatic vascular network, significantly accelerating post-operative fluid clearance and reducing limb swelling.',
+                  highlights: [
+                    'Rapid clearance of post-surgical fluid accumulation',
+                    'Relief from heavy legs, lymphedema & tissue inflammation',
+                    'Detoxification and enhanced circulatory comfort'
+                  ],
+                  bookingParam: 'lymphatic-drainage'
+                },
+                {
+                  id: 'trigger-point',
+                  title: 'Trigger Point & Myofascial Deep Release',
+                  badge: 'Deep Muscle Knots',
+                  image: '/treatments/trigger-point.jpg',
+                  duration: '45–60 Min',
+                  type: 'Myofascial Therapy',
+                  description: 'Focused ischemic compression and myofascial stripping on hyper-irritable muscle knots to eliminate referred pain, ease tension headaches, and restore muscle elasticity.',
+                  highlights: [
+                    'Dissolves stubborn chronic myofascial knots',
+                    'Direct relief from tension headaches & neck stiffness',
+                    'Restores healthy tissue oxygenation and flexibility'
+                  ],
+                  bookingParam: 'trigger-point'
+                },
+                {
+                  id: 'posture-ergonomics',
+                  title: 'Cervical Spine, Neck & Posture Alignment',
+                  badge: 'Desk Worker & Posture Health',
+                  image: '/treatments/posture-ergonomics.jpg',
+                  duration: '45–60 Min',
+                  type: 'Ergonomic Realignment',
+                  description: 'Targeted correction for tech-neck, rounded shoulders, forward head syndrome, and occupational strains caused by prolonged sitting and screen use.',
+                  highlights: [
+                    'Decompresses cervical spine & thoracic cage',
+                    'Strengthens deep neck flexors and rhomboids',
+                    'Personalized workplace ergonomic recommendations'
+                  ],
+                  bookingParam: 'posture-care'
+                },
+                {
+                  id: 'mobility-balance',
+                  title: 'Functional Joint Mobility & Balance Care',
+                  badge: 'Longevity & Joint Health',
+                  image: '/treatments/mobility-balance.jpg',
+                  duration: '45–60 Min',
+                  type: 'Active Movement Therapy',
+                  description: 'Evidence-based functional exercise therapies specifically calibrated for osteoarthritis management, hip/knee stiffness, and dynamic stability for active aging.',
+                  highlights: [
+                    'Eases osteoarthritis friction & increases joint fluid',
+                    'Dynamic proprioception & fall prevention drills',
+                    'Restores confidence and ease in everyday movement'
+                  ],
+                  bookingParam: 'mobility-balance'
+                }
+              ].map((treatment) => (
+                <div key={treatment.id} className="luxury-treatment-card">
+                  <div className="treatment-media">
+                    <span className="treatment-badge-float">{treatment.badge}</span>
+                    <Image
+                      src={treatment.image}
+                      alt={treatment.title}
+                      fill
+                      style={{ objectFit: 'cover' }}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+                    />
+                  </div>
+                  <div className="treatment-body">
+                    <div className="treatment-chips-row">
+                      <span className="treatment-chip">⏱️ {treatment.duration}</span>
+                      <span className="treatment-chip">👤 {treatment.type}</span>
+                      <span className="treatment-chip">✓ 1-on-1 with Dr. Albert</span>
+                    </div>
+                    <h3>{treatment.title}</h3>
+                    <p className="treatment-description">{treatment.description}</p>
+                    <ul className="treatment-highlights-list">
+                      {treatment.highlights.map((h, i) => (
+                        <li key={i}>
+                          <span className="check-icon">✓</span> {h}
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="treatment-card-footer">
+                      <div>
+                        <span className="treatment-fee-label">Consultation & Care</span>
+                        <span className="treatment-fee-val">300 GHS</span>
+                        <span className="treatment-fee-deposit">90 GHS Online Deposit</span>
+                      </div>
+                      <Link href={`/book?service=${treatment.bookingParam}`} className="treatment-book-btn">
+                        Book Treatment →
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>

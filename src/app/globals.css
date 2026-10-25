@@ -543,6 +543,196 @@ footer {
   width: 100%;
 }
 
+/* Luxury Treatment Showcase (Blau Hotels Resort Style) */
+.treatments-showcase-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.25rem;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .treatments-showcase-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .treatments-showcase-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.75rem;
+  }
+}
+
+.luxury-treatment-card {
+  background: #ffffff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(13, 148, 136, 0.14);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.luxury-treatment-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 48px rgba(13, 148, 136, 0.16);
+  border-color: var(--primary-color);
+}
+
+.treatment-media {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+  background: #e2e8f0;
+}
+
+.treatment-media img {
+  transition: transform 0.5s ease;
+}
+
+.luxury-treatment-card:hover .treatment-media img {
+  transform: scale(1.04);
+}
+
+.treatment-badge-float {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(15, 23, 42, 0.82);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.35rem 0.8rem;
+  border-radius: 9999px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  z-index: 2;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.treatment-body {
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.treatment-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.treatment-chip {
+  background: #f0fdfa;
+  color: var(--secondary-color);
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid #ccfbf1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.treatment-body h3 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.65rem;
+  line-height: 1.3;
+}
+
+.treatment-description {
+  color: #475569;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
+  flex: 1;
+}
+
+.treatment-highlights-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 1rem;
+}
+
+.treatment-highlights-list li {
+  font-size: 0.82rem;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 500;
+}
+
+.treatment-highlights-list li span.check-icon {
+  color: var(--primary-color);
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+.treatment-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 1.25rem;
+  margin-top: auto;
+}
+
+.treatment-fee-label {
+  font-size: 0.72rem;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.treatment-fee-val {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--secondary-color);
+  display: block;
+}
+
+.treatment-fee-deposit {
+  font-size: 0.72rem;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.treatment-book-btn {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  color: #ffffff !important;
+  padding: 0.65rem 1.25rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+}
+
+.treatment-book-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(13, 148, 136, 0.3);
+}
+
 .service-card {
   background: white;
   border-radius: 16px;
