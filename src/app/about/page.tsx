@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'About ACOOR | Africa Clinic of Osteopathy and Rehabilitation',
-  description: 'Learn about ACOOR, the 5 pillars of osteopathy, Dr. Albert (Still Academy lecturer), our global hospital network, and multidisciplinary rehabilitation.',
+  description: 'Learn about ACOOR, the 5 pillars of osteopathy, our Still Academy German faculty leadership, our global hospital network, and multidisciplinary rehabilitation.',
 };
 
 export default function AboutPage() {
@@ -138,19 +138,19 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* Section 4: Biography of Dr. Albert */}
+        {/* Section 4: Clinical Leadership & Still Academy Faculty */}
         <section className="container fade-in" style={{ padding: '4rem 2rem', display: 'block' }}>
           <div className="section-title" style={{ textAlign: 'left', marginBottom: '1.5rem' }}>
             <span className="section-badge">Leadership & Clinical Mastery</span>
-            <h2>Meet Dr. Albert</h2>
-            <p>Founder & Executive Clinical Director of ACOOR</p>
+            <h2>Our Clinical Leadership</h2>
+            <p>Executive Osteopathic Direction at ACOOR</p>
           </div>
 
           <div className="bio-card-wrapper">
             <div className="bio-img-container">
               <Image
                 src="/albert-physio.png"
-                alt="Dr. Albert"
+                alt="ACOOR Clinical Director"
                 fill
                 style={{ objectFit: 'cover', objectPosition: 'center top' }}
                 priority
@@ -161,20 +161,20 @@ export default function AboutPage() {
                 🏛️ Lecturer at Still Academy Germany
               </span>
               <h3 style={{ fontSize: '1.85rem', color: 'var(--text-primary)', marginBottom: '0.35rem', fontWeight: 800 }}>
-                Albert T.
+                Executive Clinical Director
               </h3>
               <p style={{ fontSize: '0.95rem', color: 'var(--primary-color)', fontWeight: 600, marginBottom: '1.25rem' }}>
                 Osteopathic Medicine & Clinical Rehabilitation Specialist
               </p>
               <div style={{ color: '#334155', fontSize: '0.94rem', lineHeight: '1.7', display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
                 <p>
-                  Dr. Albert completed his comprehensive medical education in <strong>Osteopathic Medicine in Germany</strong>, immersing himself in the highest standards of European clinical rigor, functional rehabilitation, and musculoskeletal science.
+                  ACOOR’s clinical leadership completed extensive medical training in <strong>Osteopathic Medicine in Germany</strong>, immersing themselves in the highest standards of European clinical rigor, functional rehabilitation, and musculoskeletal science.
                 </p>
                 <p>
-                  Demonstrating exceptional clinical acumen and pedagogical mastery, he was appointed as a distinguished <strong>Lecturer and Clinical Instructor at the Still Academy</strong> in Germany—one of Europe’s foremost academic institutions for osteopathic science, founded on the foundational teachings of Dr. Andrew Taylor Still.
+                  Demonstrating exceptional clinical acumen and pedagogical mastery, our director was appointed as a distinguished <strong>Lecturer and Clinical Instructor at the Still Academy</strong> in Germany—one of Europe’s foremost academic institutions for osteopathic science, founded on the foundational teachings of Dr. Andrew Taylor Still.
                 </p>
                 <p>
-                  Driven by a profound vision to elevate healthcare on the African continent, Dr. Albert established <strong>ACOOR (Africa Clinic of Osteopathy and Rehabilitation)</strong>. His clinical practice unites European precision, hands-on empathy, and evidence-based therapeutic protocols, providing patients in Ghana and across Africa with healthcare comparable to the finest clinics in Munich, Berlin, and Zurich.
+                  Driven by a profound vision to elevate healthcare on the African continent, our leadership established <strong>ACOOR (Africa Clinic of Osteopathy and Rehabilitation)</strong>. ACOOR unites European precision, hands-on empathy, and evidence-based therapeutic protocols, providing patients in Ghana and across Africa with healthcare comparable to the finest clinics in Munich, Berlin, and Zurich.
                 </p>
               </div>
             </div>
@@ -191,7 +191,7 @@ export default function AboutPage() {
               Our Global Mission: Connecting You With the World’s Leading Hospitals
             </h2>
             <p style={{ color: '#cbd5e1', fontSize: '1.02rem', lineHeight: '1.75', maxWidth: '850px', marginBottom: '1.75rem' }}>
-              At ACOOR, our commitment extends beyond local outpatient therapy. Through Dr. Albert’s established medical faculty connections and institutional liaisons across <strong>Germany, Switzerland, the UK, and Europe</strong>, we provide specialized advisory and direct medical referrals for patients requiring advanced surgical, neurosurgical, or tertiary medical care abroad.
+              At ACOOR, our commitment extends beyond local outpatient therapy. Through ACOOR’s established medical faculty connections and institutional liaisons across <strong>Germany, Switzerland, the UK, and Europe</strong>, we provide specialized advisory and direct medical referrals for patients requiring advanced surgical, neurosurgical, or tertiary medical care abroad.
             </p>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>

@@ -21,7 +21,7 @@ interface Message {
 }
 
 const INITIAL_SUGGESTIONS = [
-  '🏛️ About ACOOR & Dr. Albert',
+  '🏛️ About ACOOR & Faculty',
   '🩺 What is Osteopathy & 5 Pillars?',
   '🏥 4 Rehabilitation Departments',
   '🌐 Global Hospital Advisory',
@@ -40,7 +40,7 @@ export default function ClinicConcierge() {
     {
       id: 'welcome',
       sender: 'bot',
-      text: 'Hello! 👋 Welcome to **ACOOR (Africa Clinic of Osteopathy and Rehabilitation)**. I am Dr. Albert’s virtual clinic assistant.\n\nHow can I help you today? You can ask about Osteopathic Medicine, our 4 rehabilitation departments, Dr. Albert’s German Still Academy background, or tap an option below:',
+      text: 'Hello! 👋 Welcome to **ACOOR (Africa Clinic of Osteopathy and Rehabilitation)**. I am your virtual clinic assistant.\n\nHow can I help you today? You can ask about Osteopathic Medicine, our 4 rehabilitation departments, our German Still Academy faculty background, or tap an option below:',
       time: 'Just now',
       suggestions: INITIAL_SUGGESTIONS
     }
@@ -87,20 +87,22 @@ export default function ClinicConcierge() {
       };
     }
 
-    // A. About ACOOR, Dr. Albert & Still Academy
+    // A. About ACOOR & Clinical Leadership
     if (
       q.includes('about') ||
       q.includes('who is albert') ||
-      q.includes('dr albert') ||
+      q.includes('leadership') ||
+      q.includes('director') ||
+      q.includes('faculty') ||
       q.includes('still academy') ||
       q.includes('biography') ||
       q.includes('background') ||
       q.includes('acoor')
     ) {
       return {
-        text: '🏛️ **About ACOOR & Dr. Albert:**\n\n**ACOOR** stands for **Africa Clinic of Osteopathy and Rehabilitation**.\n\nOur Executive Director, **Dr. Albert**, studied Osteopathic Medicine in Germany and is an appointed **Lecturer and Clinical Instructor at the renowned Still Academy in Germany**—one of Europe’s leading osteopathic academic institutions.\n\nDr. Albert founded ACOOR to bring world-class European osteopathic standards, multidisciplinary rehabilitation, and international hospital coordination directly to patients in Africa.',
+        text: '🏛️ **About ACOOR:**\n\n**ACOOR** stands for **Africa Clinic of Osteopathy and Rehabilitation**.\n\nOur Executive Clinical Director completed medical studies in Osteopathic Medicine in Germany and is an appointed **Lecturer and Clinical Instructor at the renowned Still Academy in Germany**—one of Europe’s leading osteopathic academic institutions.\n\nACOOR was founded to bring world-class European osteopathic standards, multidisciplinary rehabilitation, and international hospital coordination directly to patients in Africa.',
         action: {
-          label: '📖 Read Full Biography & About Us',
+          label: '📖 Read About Us & Clinical Philosophy',
           href: '/about',
           type: 'primary'
         },
@@ -122,7 +124,7 @@ export default function ClinicConcierge() {
           href: '/about',
           type: 'primary'
         },
-        suggestions: ['4 Rehabilitation Departments', 'Dr. Albert’s Still Academy Background', 'Book a Consultation']
+        suggestions: ['4 Rehabilitation Departments', 'Still Academy Faculty Background', 'Book a Consultation']
       };
     }
 
@@ -138,14 +140,14 @@ export default function ClinicConcierge() {
       q.includes('second opinion')
     ) {
       return {
-        text: '🌐 **Our Global Hospital Advisory:**\n\nA core pillar of ACOOR’s mission is connecting African patients with the world’s leading medical institutions.\n\nThrough Dr. Albert’s clinical network with top university clinics and orthopedic surgeons across **Germany, Switzerland, and the UK**, we provide:\n• Expert second opinions on MRI scans & surgery recommendations\n• Direct medical coordination for specialized operations abroad\n• Seamless pre-surgery preparation and post-surgical rehabilitation back home in Accra.',
+        text: '🌐 **Our Global Hospital Advisory:**\n\nA core pillar of ACOOR’s mission is connecting African patients with the world’s leading medical institutions.\n\nThrough ACOOR’s clinical network with top university clinics and orthopedic surgeons across **Germany, Switzerland, and the UK**, we provide:\n• Expert second opinions on MRI scans & surgery recommendations\n• Direct medical coordination for specialized operations abroad\n• Seamless pre-surgery preparation and post-surgical rehabilitation back home in Accra.',
         action: {
           label: '💬 Inquire About Hospital Advisory via WhatsApp',
-          href: 'https://wa.me/49123456789?text=Hello%20Dr.%20Albert,%20I%20would%20like%20to%20inquire%20about%20your%20International%20Hospital%20Advisory',
+          href: 'https://wa.me/49123456789?text=Hello%20ACOOR,%20I%20would%20like%20to%20inquire%20about%20your%20International%20Hospital%20Advisory',
           isExternal: true,
           type: 'whatsapp'
         },
-        suggestions: ['About Dr. Albert', 'Post-Surgery Rehabilitation', 'Book a Consultation']
+        suggestions: ['About ACOOR', 'Post-Surgery Rehabilitation', 'Book a Consultation']
       };
     }
 
@@ -167,7 +169,7 @@ export default function ClinicConcierge() {
           href: '/about',
           type: 'primary'
         },
-        suggestions: ['Book Post-Surgery Care', 'Manual Therapy', 'Chat with Dr. Albert on WhatsApp']
+        suggestions: ['Book Post-Surgery Care', 'Manual Therapy', 'Chat with ACOOR on WhatsApp']
       };
     }
 
@@ -183,7 +185,7 @@ export default function ClinicConcierge() {
       q.includes('hernia')
     ) {
       return {
-        text: 'For back, neck, and spinal discomfort, Dr. Albert recommends our **Manual Therapy & Spinal Realignment** program.\n\nThis hands-on therapy decompresses restricted spinal segments, releases muscle spasms, and restores comfortable pain-free mobility.',
+        text: 'For back, neck, and spinal discomfort, ACOOR recommends our **Manual Therapy & Spinal Realignment** program.\n\nThis hands-on therapy decompresses restricted spinal segments, releases muscle spasms, and restores comfortable pain-free mobility.',
         action: {
           label: '📅 Book Manual Therapy (300 GHS)',
           href: '/book?service=manual-therapy',
@@ -212,7 +214,7 @@ export default function ClinicConcierge() {
           href: '/book?service=sports-physio',
           type: 'primary'
         },
-        suggestions: ['What happens during the first visit?', 'Do you accept insurance?', 'Speak with Dr. Albert']
+        suggestions: ['What happens during the first visit?', 'Do you accept insurance?', 'Chat on WhatsApp']
       };
     }
 
@@ -225,7 +227,7 @@ export default function ClinicConcierge() {
       q.includes('fracture')
     ) {
       return {
-        text: 'We provide structured, surgeon-aligned **Post-Surgical Orthopedic Recovery** protocols for knee replacements, hip surgeries, arthroscopic repairs, and fractures.\n\nDr. Albert ensures safe passive-to-active range of motion progression while preventing scar tissue stiffness.',
+        text: 'We provide structured, surgeon-aligned **Post-Surgical Orthopedic Recovery** protocols for knee replacements, hip surgeries, arthroscopic repairs, and fractures.\n\nOur clinical team ensures safe passive-to-active range of motion progression while preventing scar tissue stiffness.',
         action: {
           label: '📅 Book Post-Surgical Rehab',
           href: '/book?service=post-surgery',
@@ -326,7 +328,7 @@ export default function ClinicConcierge() {
       q.includes('pay')
     ) {
       return {
-        text: 'Here is our transparent pricing:\n\n• **Comprehensive Session:** 300 GHS (45–60 min 1-on-1 with Dr. Albert)\n• **Online Booking Deposit:** 90 GHS (30% to reserve your exact Google Calendar slot)\n• **Remaining Balance:** 210 GHS paid at the clinic during your appointment.',
+        text: 'Here is our transparent pricing:\n\n• **Comprehensive Session:** 300 GHS (45–60 min 1-on-1 with Certified Specialist)\n• **Online Booking Deposit:** 90 GHS (30% to reserve your exact Google Calendar slot)\n• **Remaining Balance:** 210 GHS paid at the clinic during your appointment.',
         action: {
           label: '📅 Book Slot Now (90 GHS Deposit)',
           href: '/book',
@@ -342,7 +344,7 @@ export default function ClinicConcierge() {
         text: 'Yes! We welcome both private self-pay patients and major approved corporate and private health insurance schemes.\n\nPlease bring your valid membership card or policy slip, or message us directly on WhatsApp so our front desk can confirm your coverage in advance.',
         action: {
           label: '💬 Check Insurance on WhatsApp',
-          href: 'https://wa.me/49123456789?text=Hello%20Albert%20Physio,%20I%20would%20like%20to%20verify%20my%20insurance%20coverage',
+          href: 'https://wa.me/49123456789?text=Hello%20ACOOR,%20I%20would%20like%20to%20verify%20my%20insurance%20coverage',
           isExternal: true,
           type: 'whatsapp'
         },
@@ -362,7 +364,7 @@ export default function ClinicConcierge() {
       q.includes('direction')
     ) {
       return {
-        text: '📍 **Clinic Location:**\nAlbert Physio & Wellness is located in **Pokuasi, Accra, Ghana**.\n\nWe are conveniently accessible with dedicated, secure on-site parking for all our patients.',
+        text: '📍 **Clinic Location:**\nACOOR (Africa Clinic of Osteopathy & Rehabilitation) is located in **Pokuasi, Accra, Ghana**.\n\nWe are conveniently accessible with dedicated, secure on-site parking for all our patients.',
         action: {
           label: '🗺️ Open in Google Maps',
           href: 'https://maps.google.com/?q=Pokuasi,+Accra,+Ghana',
@@ -389,7 +391,7 @@ export default function ClinicConcierge() {
     // 13. What to wear or bring
     if (q.includes('wear') || q.includes('bring') || q.includes('cloth') || q.includes('document') || q.includes('x-ray') || q.includes('mri')) {
       return {
-        text: '👕 **What to wear:**\nPlease wear comfortable, flexible sportswear (shorts, t-shirt, sweatpants) so Dr. Albert can easily examine and mobilize your joints.\n\n📋 **What to bring:**\nPlease bring your photo ID and any previous X-rays, MRI scans, or doctor referral notes if you have them. If not, Dr. Albert will perform a full diagnostic assessment during your session.',
+        text: '👕 **What to wear:**\nPlease wear comfortable, flexible sportswear (shorts, t-shirt, sweatpants) so our clinical specialist can easily examine and mobilize your joints.\n\n📋 **What to bring:**\nPlease bring your photo ID and any previous X-rays, MRI scans, or doctor referral notes if you have them. If not, our clinical team will perform a full diagnostic assessment during your session.',
         suggestions: ['How long does a session take?', 'Book an appointment']
       };
     }
@@ -397,7 +399,7 @@ export default function ClinicConcierge() {
     // 14. Session Duration
     if (q.includes('duration') || q.includes('long') || q.includes('minute') || q.includes('session')) {
       return {
-        text: '⏱️ Each standard physiotherapy appointment takes approximately **45 to 60 minutes**.\n\nThis includes a comprehensive clinical assessment, personalized hands-on therapy, and take-home functional exercise instructions.',
+        text: '⏱️ Each standard clinical appointment takes approximately **45 to 60 minutes**.\n\nThis includes a comprehensive diagnostic assessment, personalized hands-on therapy, and take-home functional exercise instructions.',
         action: {
           label: '📅 Book Your 45–60 Min Session',
           href: '/book',
@@ -434,10 +436,10 @@ export default function ClinicConcierge() {
       q.includes('albert')
     ) {
       return {
-        text: 'You can connect directly with Dr. Albert or our reception staff via WhatsApp or phone right now:\n\n• **WhatsApp:** Instant messaging\n• **Phone:** +49 123 456 789\n• **Email:** info@albert-physio.de',
+        text: 'You can connect directly with ACOOR clinical reception staff via WhatsApp or phone right now:\n\n• **WhatsApp:** Instant messaging\n• **Phone:** +49 123 456 789\n• **Email:** info@albert-physio.de',
         action: {
           label: '💬 Open WhatsApp (+49 123 456 789)',
-          href: 'https://wa.me/49123456789?text=Hello%20Dr.%20Albert,%20I%20have%20a%20question%20about%20physiotherapy',
+          href: 'https://wa.me/49123456789?text=Hello%20ACOOR,%20I%20have%20a%20question%20about%20your%20services',
           isExternal: true,
           type: 'whatsapp'
         },
@@ -448,14 +450,14 @@ export default function ClinicConcierge() {
     // 17. Which treatment do I need? (Interactive guide)
     if (q.includes('treatment') || q.includes('service') || q.includes('offer') || q.includes('program') || q.includes('help me')) {
       return {
-        text: 'Dr. Albert offers 8 specialized clinical programs:\n\n1. **Manual Therapy** (Spine, back & neck pain)\n2. **Sports Physio** (Sprains, athletic tears)\n3. **Post-Surgery Recovery** (Joint replacements)\n4. **Advanced Electrotherapy** (Chronic joint pain)\n5. **Lymphatic Drainage** (Swelling & fluid relief)\n6. **Trigger Point Release** (Muscle knots & headaches)\n7. **Posture Alignment** (Desk workers & tech-neck)\n8. **Functional Joint Mobility** (Osteoarthritis & aging)\n\nWhich of these conditions are you experiencing?',
+        text: 'ACOOR offers 8 specialized clinical programs:\n\n1. **Manual Therapy** (Spine, back & neck pain)\n2. **Sports Physio** (Sprains, athletic tears)\n3. **Post-Surgery Recovery** (Joint replacements)\n4. **Advanced Electrotherapy** (Chronic joint pain)\n5. **Lymphatic Drainage** (Swelling & fluid relief)\n6. **Trigger Point Release** (Muscle knots & headaches)\n7. **Posture Alignment** (Desk workers & tech-neck)\n8. **Functional Joint Mobility** (Osteoarthritis & aging)\n\nWhich of these conditions are you experiencing?',
         suggestions: ['Back & Neck Pain', 'Sports Injury', 'Post-Surgery Rehab', 'Swelling & Edema', 'Muscle Knots']
       };
     }
 
     // Default Fallback
     return {
-      text: `Thank you for asking! Dr. Albert specializes in evidence-based physiotherapy tailored to your exact condition.\n\nWould you like to schedule an appointment, or speak directly with Dr. Albert on WhatsApp?`,
+      text: `Thank you for asking! ACOOR specializes in evidence-based osteopathy and comprehensive rehabilitation tailored to your exact condition.\n\nWould you like to schedule an appointment, or speak directly with ACOOR on WhatsApp?`,
       action: {
         label: '📅 Book Appointment Online',
         href: '/book',
@@ -464,7 +466,7 @@ export default function ClinicConcierge() {
       suggestions: [
         '🩺 Which treatment do I need?',
         '💰 Fees & Deposit (300 GHS)',
-        '💬 Chat with Dr. Albert on WhatsApp',
+        '💬 Chat with ACOOR on WhatsApp',
         '📍 Location in Pokuasi'
       ]
     };
@@ -532,7 +534,7 @@ export default function ClinicConcierge() {
             setIsOpen(!isOpen);
             setHasInteracted(true);
           }}
-          aria-label={isOpen ? 'Close Live Chat' : 'Chat with Dr. Albert Assistant'}
+          aria-label={isOpen ? 'Close Live Chat' : 'Chat with ACOOR Virtual Assistant'}
           style={{
             background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
             color: '#ffffff',

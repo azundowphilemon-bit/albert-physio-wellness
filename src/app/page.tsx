@@ -37,11 +37,11 @@ export default function LandingPage() {
             <span className="hero-badge">Certified Osteopathic Medicine & Comprehensive Rehabilitation</span>
             <h1>Restoring Movement,<br />Transforming Lives.</h1>
             <p className="hero-subtext">
-              Welcome to <strong>ACOOR (Africa Clinic of Osteopathy and Rehabilitation)</strong>. Directed by Dr. Albert—lecturer at Germany’s prestigious Still Academy—we integrate European osteopathic clinical rigor, multidisciplinary rehabilitation, and international hospital coordination.
+              Welcome to <strong>ACOOR (Africa Clinic of Osteopathy and Rehabilitation)</strong>. Grounded in European clinical rigor and Still Academy faculty standards, we integrate osteopathic medicine, multidisciplinary rehabilitation, and international hospital coordination.
             </p>
             <div className="cta-wrapper" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               <Link href="/book" className="btn primary cta-btn">Book Your Visit Now</Link>
-              <Link href="/about" className="btn outline cta-btn" style={{ padding: '1rem 2rem', fontSize: '1rem' }}>About ACOOR & Dr. Albert →</Link>
+              <Link href="/about" className="btn outline cta-btn" style={{ padding: '1rem 2rem', fontSize: '1rem' }}>About ACOOR & Faculty →</Link>
             </div>
             <div className="hero-stats">
               <div className="stat"><span className="stat-num">500+</span><span className="stat-label">Patients Treated</span></div>
@@ -53,7 +53,7 @@ export default function LandingPage() {
           </div>
           <div className="right-col fade-in" style={{ animationDelay: '0.2s' }}>
             <div className="image-wrapper hero-img">
-              <Image src="/albert-physio.png" alt="Dr. Albert at ACOOR" fill style={{ objectFit: 'cover', objectPosition: 'center top', borderRadius: '24px' }} priority />
+              <Image src="/albert-physio.png" alt="ACOOR Clinical Director" fill style={{ objectFit: 'cover', objectPosition: 'center top', borderRadius: '24px' }} priority />
             </div>
           </div>
         </section>
@@ -74,7 +74,7 @@ export default function LandingPage() {
               <span style={{ fontSize: '2.2rem', display: 'block', marginBottom: '0.75rem' }}>🏛️</span>
               <h3 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>German Osteopathic Faculty</h3>
               <p style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: '1.6' }}>
-                Founded by Dr. Albert, who completed advanced medical studies in Germany and serves as a lecturer and clinical educator at the renowned Still Academy in Germany.
+                Founded by our Clinical Director, who completed advanced medical studies in Germany and serves as a lecturer and clinical educator at the renowned Still Academy in Germany.
               </p>
             </div>
 
@@ -260,7 +260,7 @@ export default function LandingPage() {
                     <div className="treatment-chips-row">
                       <span className="treatment-chip">⏱️ {treatment.duration}</span>
                       <span className="treatment-chip">👤 {treatment.type}</span>
-                      <span className="treatment-chip">✓ 1-on-1 with Dr. Albert</span>
+                      <span className="treatment-chip">✓ 1-on-1 Certified Specialist</span>
                     </div>
                     <h3>{treatment.title}</h3>
                     <p className="treatment-description">{treatment.description}</p>

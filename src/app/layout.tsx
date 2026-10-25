@@ -5,7 +5,7 @@ import ClinicConcierge from './ClinicConcierge';
 
 export const metadata: Metadata = {
   title: 'ACOOR | Africa Clinic of Osteopathy and Rehabilitation',
-  description: 'ACOOR: Africa Clinic of Osteopathy and Rehabilitation. Directed by Dr. Albert (Still Academy Germany). Osteopathy, Physical Therapy, Ergotherapy, Speech Therapy & International Medical Advisory.',
+  description: 'ACOOR: Africa Clinic of Osteopathy and Rehabilitation. German Still Academy faculty-led osteopathic medicine, physical therapy, occupational therapy (Ergotherapie), speech therapy & international medical advisory.',
 };
 
 export default function RootLayout({
