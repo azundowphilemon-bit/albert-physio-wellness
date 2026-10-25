@@ -87,6 +87,26 @@ export default function ClinicConcierge() {
       };
     }
 
+    // Password Recovery & Account Access
+    if (
+      q.includes('forgot password') ||
+      q.includes('reset password') ||
+      q.includes('change password') ||
+      q.includes('cannot login') ||
+      q.includes("can't login") ||
+      q.includes('password')
+    ) {
+      return {
+        text: '🔑 **Password Reset & Account Recovery:**\n\nIf you have forgotten your password or cannot access your patient dashboard:\n\n1. Go to our **Forgot Password** portal.\n2. Enter your registered email address.\n3. Open the secure reset link sent to your inbox to choose a new password.\n\n*Tip:* If you do not see the email within 2 minutes, please check your Spam/Junk folder.',
+        action: {
+          label: '🔑 Reset Your Password Now',
+          href: '/forgot-password',
+          type: 'primary',
+        },
+        suggestions: ['How do I book an appointment?', 'Where is the clinic located?', 'Contact Reception on WhatsApp'],
+      };
+    }
+
     // A. About ACOOR & Clinical Leadership
     if (
       q.includes('about') ||
