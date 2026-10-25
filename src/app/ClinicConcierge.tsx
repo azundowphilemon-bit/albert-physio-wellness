@@ -21,11 +21,12 @@ interface Message {
 }
 
 const INITIAL_SUGGESTIONS = [
-  '🩺 Which treatment do I need?',
+  '🏛️ About ACOOR & Dr. Albert',
+  '🩺 What is Osteopathy & 5 Pillars?',
+  '🏥 4 Rehabilitation Departments',
+  '🌐 Global Hospital Advisory',
   '💰 What are your fees & deposit?',
-  '📍 Where is the clinic in Pokuasi?',
-  '⏰ What are your opening hours?',
-  '💬 Chat with Dr. Albert on WhatsApp'
+  '💬 Chat on WhatsApp'
 ];
 
 export default function ClinicConcierge() {
@@ -39,7 +40,7 @@ export default function ClinicConcierge() {
     {
       id: 'welcome',
       sender: 'bot',
-      text: 'Hello! 👋 Welcome to Albert Physio & Wellness. I am Dr. Albert’s virtual clinic assistant.\n\nHow can I help you today? You can type your condition or question, or tap any of the topics below:',
+      text: 'Hello! 👋 Welcome to **ACOOR (Africa Clinic of Osteopathy and Rehabilitation)**. I am Dr. Albert’s virtual clinic assistant.\n\nHow can I help you today? You can ask about Osteopathic Medicine, our 4 rehabilitation departments, Dr. Albert’s German Still Academy background, or tap an option below:',
       time: 'Just now',
       suggestions: INITIAL_SUGGESTIONS
     }
@@ -83,6 +84,90 @@ export default function ClinicConcierge() {
           type: 'secondary'
         },
         suggestions: ['What non-emergency services do you offer?', 'Where is your clinic located?']
+      };
+    }
+
+    // A. About ACOOR, Dr. Albert & Still Academy
+    if (
+      q.includes('about') ||
+      q.includes('who is albert') ||
+      q.includes('dr albert') ||
+      q.includes('still academy') ||
+      q.includes('biography') ||
+      q.includes('background') ||
+      q.includes('acoor')
+    ) {
+      return {
+        text: '🏛️ **About ACOOR & Dr. Albert:**\n\n**ACOOR** stands for **Africa Clinic of Osteopathy and Rehabilitation**.\n\nOur Executive Director, **Dr. Albert**, studied Osteopathic Medicine in Germany and is an appointed **Lecturer and Clinical Instructor at the renowned Still Academy in Germany**—one of Europe’s leading osteopathic academic institutions.\n\nDr. Albert founded ACOOR to bring world-class European osteopathic standards, multidisciplinary rehabilitation, and international hospital coordination directly to patients in Africa.',
+        action: {
+          label: '📖 Read Full Biography & About Us',
+          href: '/about',
+          type: 'primary'
+        },
+        suggestions: ['What is Osteopathy?', 'The 5 Pillars of Osteopathy', 'Global Hospital Advisory', 'Book a Consultation']
+      };
+    }
+
+    // B. What is Osteopathy & The 5 Pillars
+    if (
+      q.includes('osteopath') ||
+      q.includes('pillar') ||
+      q.includes('what is osteopathy') ||
+      q.includes('who is an osteopath')
+    ) {
+      return {
+        text: '🩺 **What is Osteopathy?**\nOsteopathy is an evidence-informed holistic medical science focusing on the interconnection between the body’s structure and function. Rather than merely masking symptoms, it restores mobility and natural self-healing.\n\n🏛️ **The 5 Pillars of Osteopathy:**\n1. **Biomechanical Model (Parietal):** Joint articulation, spine, posture & fascial mobility.\n2. **Neurological Model:** Regulating central & autonomic nervous pathways; calming pain reflexes.\n3. **Respiratory & Circulatory Model:** Optimizing arterial supply and lymphatic drainage.\n4. **Metabolic & Visceral Model:** Internal organ mobility, digestion & cellular vitality.\n5. **Biopsychosocial Model:** Craniosacral harmony, stress release & mind-body balance.',
+        action: {
+          label: '📖 Explore 5 Pillars & Who is an Osteopath',
+          href: '/about',
+          type: 'primary'
+        },
+        suggestions: ['4 Rehabilitation Departments', 'Dr. Albert’s Still Academy Background', 'Book a Consultation']
+      };
+    }
+
+    // C. Global Hospital Advisory (Treatment Abroad)
+    if (
+      q.includes('hospital') ||
+      q.includes('abroad') ||
+      q.includes('global') ||
+      q.includes('mission') ||
+      q.includes('germany') ||
+      q.includes('europe') ||
+      q.includes('travel') ||
+      q.includes('second opinion')
+    ) {
+      return {
+        text: '🌐 **Our Global Hospital Advisory:**\n\nA core pillar of ACOOR’s mission is connecting African patients with the world’s leading medical institutions.\n\nThrough Dr. Albert’s clinical network with top university clinics and orthopedic surgeons across **Germany, Switzerland, and the UK**, we provide:\n• Expert second opinions on MRI scans & surgery recommendations\n• Direct medical coordination for specialized operations abroad\n• Seamless pre-surgery preparation and post-surgical rehabilitation back home in Accra.',
+        action: {
+          label: '💬 Inquire About Hospital Advisory via WhatsApp',
+          href: 'https://wa.me/49123456789?text=Hello%20Dr.%20Albert,%20I%20would%20like%20to%20inquire%20about%20your%20International%20Hospital%20Advisory',
+          isExternal: true,
+          type: 'whatsapp'
+        },
+        suggestions: ['About Dr. Albert', 'Post-Surgery Rehabilitation', 'Book a Consultation']
+      };
+    }
+
+    // D. Multidisciplinary Rehabilitation (Physiotherapy, Ergotherapie, Logopädie, Post-Surgery)
+    if (
+      q.includes('rehab') ||
+      q.includes('ergotherapie') ||
+      q.includes('ergotherapy') ||
+      q.includes('occupational') ||
+      q.includes('logopadie') ||
+      q.includes('logopädie') ||
+      q.includes('speech') ||
+      q.includes('swallowing')
+    ) {
+      return {
+        text: '🏥 **Multidisciplinary Rehabilitation at ACOOR:**\n\nWe provide 4 integrated clinical departments:\n\n1. **Physical Therapy (Physiotherapie):** Manual joint mobilization, sports rehab, spinal decompression & electrotherapy.\n2. **Occupational Therapy (Ergotherapie):** Regaining fine motor control, hand rehabilitation, stroke recovery & ergonomic independence.\n3. **Speech & Language Therapy (Logopädie):** Treatment for speech, voice, communication, and swallowing disorders (dysphagia).\n4. **Post-Surgical Specialized Care:** Structured recovery following orthopedic joint replacements and spine surgeries.',
+        action: {
+          label: '📖 View All Rehabilitation Services',
+          href: '/about',
+          type: 'primary'
+        },
+        suggestions: ['Book Post-Surgery Care', 'Manual Therapy', 'Chat with Dr. Albert on WhatsApp']
       };
     }
 
@@ -540,11 +625,11 @@ export default function ClinicConcierge() {
               </div>
               <div>
                 <h3 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 700, color: '#fff', fontFamily: "'Outfit', sans-serif" }}>
-                  Albert Physio Live Support
+                  ACOOR Live Support
                 </h3>
                 <p style={{ margin: 0, fontSize: '0.75rem', opacity: 0.92, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                   <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#34d399', display: 'inline-block' }} />
-                  Dr. Albert’s Virtual Reception • Online
+                  Africa Clinic of Osteopathy & Rehab • Online
                 </p>
               </div>
             </div>

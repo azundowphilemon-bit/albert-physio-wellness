@@ -4,8 +4,8 @@ import FloatingHome from './FloatingHome';
 import ClinicConcierge from './ClinicConcierge';
 
 export const metadata: Metadata = {
-  title: 'Albert Physio & Wellness | Book an Appointment',
-  description: 'Premium physiotherapy and wellness clinic. Book your appointment online.',
+  title: 'ACOOR | Africa Clinic of Osteopathy and Rehabilitation',
+  description: 'ACOOR: Africa Clinic of Osteopathy and Rehabilitation. Directed by Dr. Albert (Still Academy Germany). Osteopathy, Physical Therapy, Ergotherapy, Speech Therapy & International Medical Advisory.',
 };
 
 export default function RootLayout({
@@ -20,7 +20,7 @@ export default function RootLayout({
         <ClinicConcierge />
         {children}
         <footer>
-          &copy; {new Date().getFullYear()} Albert Physio & Wellness. All rights reserved.
+          &copy; {new Date().getFullYear()} ACOOR - Africa Clinic of Osteopathy and Rehabilitation. All rights reserved.
         </footer>
       </body>
     </html>

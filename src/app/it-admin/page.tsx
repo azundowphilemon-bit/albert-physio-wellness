@@ -156,7 +156,7 @@ export default function ITAdminPage() {
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a' }}>
         <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '16px', padding: '2.5rem', maxWidth: '400px', width: '100%' }}>
           <div style={{ marginBottom: '2rem' }}>
-            <p style={{ color: '#0d9488', fontSize: '0.8rem', fontWeight: 600, letterSpacing: '1px', marginBottom: '0.5rem' }}>ALBERT PHYSIO</p>
+            <p style={{ color: '#0d9488', fontSize: '0.8rem', fontWeight: 600, letterSpacing: '1px', marginBottom: '0.5rem' }}>ACOOR CLINIC</p>
             <h1 style={{ color: '#f1f5f9', fontSize: '1.75rem', fontFamily: 'Outfit, sans-serif' }}>IT Admin Portal</h1>
             <p style={{ color: '#64748b', fontSize: '0.9rem', marginTop: '0.5rem' }}>System diagnostics & troubleshooting</p>
           </div>
@@ -187,7 +187,7 @@ export default function ITAdminPage() {
       {/* Header */}
       <header style={{ background: '#1e293b', borderBottom: '1px solid #334155', padding: '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <p style={{ color: '#0d9488', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '1px' }}>ALBERT PHYSIO</p>
+          <p style={{ color: '#0d9488', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '1px' }}>ACOOR CLINIC</p>
           <h1 style={{ fontSize: '1.25rem', fontFamily: 'Outfit, sans-serif', color: '#f1f5f9' }}>IT Admin Dashboard</h1>
         </div>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>

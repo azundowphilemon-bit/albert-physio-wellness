@@ -218,7 +218,8 @@ export default function Home() {
               className="logo-img" 
             />
             <div className="title-wrapper">
-              <h1>Albert Physio & Wellness</h1>
+              <h1>ACOOR</h1>
+              <p style={{ fontWeight: 600, color: 'var(--primary-color)', fontSize: '0.88rem', margin: '-0.2rem 0 0.3rem 0' }}>Africa Clinic of Osteopathy & Rehabilitation</p>
               <p>Book your appointment online easily and securely.</p>
             </div>
           </div>

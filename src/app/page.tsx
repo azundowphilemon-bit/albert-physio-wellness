@@ -8,11 +8,20 @@ export default function LandingPage() {
       {/* Navbar */}
       <header className="navbar">
         <div className="container nav-container">
-          <div className="logo-section">
-            <Image src="/logo.png" alt="Albert Physio & Wellness Logo" width={52} height={52} className="logo-sm" />
-            <span className="brand-text">Albert Physio & Wellness</span>
-          </div>
+          <Link href="/" className="logo-section" style={{ textDecoration: 'none' }}>
+            <Image src="/logo.png" alt="ACOOR Logo" width={52} height={52} className="logo-sm" />
+            <div>
+              <span className="brand-text" style={{ display: 'block', fontSize: '1.25rem', color: 'var(--secondary-color)' }}>
+                ACOOR
+              </span>
+              <span style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontWeight: 600, letterSpacing: '0.02em' }}>
+                Africa Clinic of Osteopathy & Rehab
+              </span>
+            </div>
+          </Link>
           <nav className="nav-actions">
+            <Link href="/about" className="nav-link" style={{ fontWeight: 600, color: 'var(--primary-color)' }}>About Us</Link>
+            <Link href="#treatments" className="nav-link">Treatments</Link>
             <Link href="/login" className="nav-link">Login</Link>
             <Link href="/register" className="btn outline sm-btn">Register</Link>
             <Link href="/book" className="btn primary sm-btn">Book Appointment</Link>
@@ -25,24 +34,26 @@ export default function LandingPage() {
         {/* Hero */}
         <section className="hero-section container layout-2-col">
           <div className="left-col hero-content fade-in">
-            <span className="hero-badge">Certified Physiotherapy & Wellness</span>
-            <h1>Restoring Movement,<br />Reclaiming Life.</h1>
-            <p className="hero-subtext">Premium physiotherapy and wellness care tailored exactly to your needs. Experience the difference with expert hands and state-of-the-art technology.</p>
+            <span className="hero-badge">Certified Osteopathic Medicine & Comprehensive Rehabilitation</span>
+            <h1>Restoring Movement,<br />Transforming Lives.</h1>
+            <p className="hero-subtext">
+              Welcome to <strong>ACOOR (Africa Clinic of Osteopathy and Rehabilitation)</strong>. Directed by Dr. Albert—lecturer at Germany’s prestigious Still Academy—we integrate European osteopathic clinical rigor, multidisciplinary rehabilitation, and international hospital coordination.
+            </p>
             <div className="cta-wrapper" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               <Link href="/book" className="btn primary cta-btn">Book Your Visit Now</Link>
-              <Link href="/register" className="btn outline cta-btn" style={{ padding: '1rem 2rem', fontSize: '1rem' }}>Create Account</Link>
+              <Link href="/about" className="btn outline cta-btn" style={{ padding: '1rem 2rem', fontSize: '1rem' }}>About ACOOR & Dr. Albert →</Link>
             </div>
             <div className="hero-stats">
               <div className="stat"><span className="stat-num">500+</span><span className="stat-label">Patients Treated</span></div>
               <div className="stat-divider" />
-              <div className="stat"><span className="stat-num">10+</span><span className="stat-label">Years Experience</span></div>
+              <div className="stat"><span className="stat-num">Still Academy</span><span className="stat-label">German Faculty</span></div>
               <div className="stat-divider" />
               <div className="stat"><span className="stat-num">98%</span><span className="stat-label">Satisfaction Rate</span></div>
             </div>
           </div>
           <div className="right-col fade-in" style={{ animationDelay: '0.2s' }}>
             <div className="image-wrapper hero-img">
-              <Image src="/albert-physio.png" alt="Dr. Albert in clinic" fill style={{ objectFit: 'cover', objectPosition: 'center top', borderRadius: '24px' }} priority />
+              <Image src="/albert-physio.png" alt="Dr. Albert at ACOOR" fill style={{ objectFit: 'cover', objectPosition: 'center top', borderRadius: '24px' }} priority />
             </div>
           </div>
         </section>
@@ -50,8 +61,60 @@ export default function LandingPage() {
         {/* Section Divider */}
         <div className="section-divider" />
 
+        {/* About ACOOR Spotlight Section */}
+        <section className="about-spotlight-section container fade-in" style={{ padding: '4rem 2rem 2rem 2rem', display: 'block' }}>
+          <div className="section-title">
+            <span className="section-badge">Welcome to ACOOR</span>
+            <h2>Africa Clinic of Osteopathy and Rehabilitation</h2>
+            <p>Pioneering European osteopathic standards, multidisciplinary therapy, and international medical navigation</p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.75rem', marginBottom: '2.5rem' }}>
+            <div style={{ background: '#ffffff', borderRadius: '18px', padding: '2rem', border: '1px solid rgba(13, 148, 136, 0.16)', boxShadow: '0 8px 24px rgba(0,0,0,0.04)' }}>
+              <span style={{ fontSize: '2.2rem', display: 'block', marginBottom: '0.75rem' }}>🏛️</span>
+              <h3 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>German Osteopathic Faculty</h3>
+              <p style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: '1.6' }}>
+                Founded by Dr. Albert, who completed advanced medical studies in Germany and serves as a lecturer and clinical educator at the renowned Still Academy in Germany.
+              </p>
+            </div>
+
+            <div style={{ background: '#ffffff', borderRadius: '18px', padding: '2rem', border: '1px solid rgba(13, 148, 136, 0.16)', boxShadow: '0 8px 24px rgba(0,0,0,0.04)' }}>
+              <span style={{ fontSize: '2.2rem', display: 'block', marginBottom: '0.75rem' }}>🩺</span>
+              <h3 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>The 5 Pillars of Osteopathy</h3>
+              <p style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: '1.6' }}>
+                Evaluating the patient through the Biomechanical, Neurological, Circulatory, Metabolic, and Biopsychosocial models to treat root causes rather than just masking symptoms.
+              </p>
+            </div>
+
+            <div style={{ background: '#ffffff', borderRadius: '18px', padding: '2rem', border: '1px solid rgba(13, 148, 136, 0.16)', boxShadow: '0 8px 24px rgba(0,0,0,0.04)' }}>
+              <span style={{ fontSize: '2.2rem', display: 'block', marginBottom: '0.75rem' }}>🌐</span>
+              <h3 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Global Hospital Advisory</h3>
+              <p style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: '1.6' }}>
+                Direct clinical bridges and referrals to premier university hospitals and specialized orthopedic surgical centers in Germany and across Europe for complex surgical care.
+              </p>
+            </div>
+
+            <div style={{ background: '#ffffff', borderRadius: '18px', padding: '2rem', border: '1px solid rgba(13, 148, 136, 0.16)', boxShadow: '0 8px 24px rgba(0,0,0,0.04)' }}>
+              <span style={{ fontSize: '2.2rem', display: 'block', marginBottom: '0.75rem' }}>🏥</span>
+              <h3 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>4 Departments of Rehab</h3>
+              <p style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: '1.6' }}>
+                Complete integration of <strong>Physical Therapy</strong>, <strong>Occupational Therapy (Ergotherapie)</strong>, <strong>Speech Therapy (Logopädie)</strong>, and <strong>Post-Surgical Care</strong>.
+              </p>
+            </div>
+          </div>
+
+          <div style={{ textAlign: 'center' }}>
+            <Link href="/about" className="btn outline" style={{ padding: '0.85rem 2rem', fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none' }}>
+              Read the Complete About ACOOR & Biography Story →
+            </Link>
+          </div>
+        </section>
+
+        {/* Section Divider */}
+        <div className="section-divider" />
+
         {/* Services / Treatments Showcase (Luxury Resort Catalog Style) */}
-        <section className="services-section bg-mint fade-in" style={{ animationDelay: '0.4s' }}>
+        <section id="treatments" className="services-section bg-mint fade-in" style={{ animationDelay: '0.4s' }}>
           <div className="container" style={{ display: 'block', padding: '5rem 2rem' }}>
             <div className="section-title">
               <span className="section-badge">Comprehensive Clinical Treatments</span>
@@ -321,18 +384,23 @@ export default function LandingPage() {
         <div className="footer-inner container" style={{ display: 'block', padding: '0 2rem' }}>
           <div className="footer-top">
             <div className="footer-brand">
-              <Image src="/logo.png" alt="Logo" width={44} height={44} className="logo-sm" />
-              <span className="brand-text" style={{ color: '#fff' }}>Albert Physio & Wellness</span>
+              <Image src="/logo.png" alt="ACOOR Logo" width={44} height={44} className="logo-sm" />
+              <div>
+                <span className="brand-text" style={{ color: '#fff', display: 'block', fontSize: '1.15rem' }}>ACOOR</span>
+                <span style={{ color: '#94a3b8', fontSize: '0.72rem' }}>Africa Clinic of Osteopathy & Rehabilitation</span>
+              </div>
             </div>
             <div className="footer-links">
+              <Link href="/">Home</Link>
+              <Link href="/about">About Us</Link>
+              <Link href="/#treatments">Treatments</Link>
               <Link href="/book">Book Appointment</Link>
-              <Link href="/login">Patient Login</Link>
-              <Link href="/register">Register</Link>
+              <Link href="/dashboard">Patient Portal</Link>
             </div>
           </div>
           <div className="footer-divider" />
           <div className="footer-bottom">
-            <p>© {new Date().getFullYear()} Albert Physio & Wellness. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} ACOOR - Africa Clinic of Osteopathy and Rehabilitation. All rights reserved.</p>
             <Link href="/admin" className="admin-link">Staff Portal</Link>
           </div>
         </div>
