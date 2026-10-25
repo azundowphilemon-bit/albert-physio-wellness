@@ -74,7 +74,7 @@ export default function LandingPage() {
               <span style={{ fontSize: '2.2rem', display: 'block', marginBottom: '0.75rem' }}>🏛️</span>
               <h3 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>German Osteopathic Faculty</h3>
               <p style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: '1.6' }}>
-                Founded by our Clinical Director, who completed advanced medical studies in Germany and serves as a lecturer and clinical educator at the renowned Still Academy in Germany.
+                Founded by Albert Nana Yaw Ntekoh, who completed medical studies in Germany and serves as a lecturer and clinical educator at the renowned Still Academy in Germany.
               </p>
             </div>
 
@@ -295,7 +295,7 @@ export default function LandingPage() {
         <section className="why-section fade-in" style={{ animationDelay: '0.5s' }}>
           <div className="container" style={{ display: 'block', padding: '5rem 2rem' }}>
             <div className="section-title">
-              <span className="section-badge">Why Albert Physio</span>
+              <span className="section-badge">Why Choose ACOOR</span>
               <h2>Care You Can Trust</h2>
               <p>We combine clinical expertise with a patient-first approach</p>
             </div>
@@ -372,7 +372,7 @@ export default function LandingPage() {
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              title="Albert Physio & Wellness - Pokuasi, Accra"
+              title="ACOOR Clinic - Pokuasi, Accra"
             />
           </div>
         </section>

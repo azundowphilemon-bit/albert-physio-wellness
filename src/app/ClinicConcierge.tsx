@@ -100,7 +100,7 @@ export default function ClinicConcierge() {
       q.includes('acoor')
     ) {
       return {
-        text: '🏛️ **About ACOOR:**\n\n**ACOOR** stands for **Africa Clinic of Osteopathy and Rehabilitation**.\n\nOur Executive Clinical Director completed medical studies in Osteopathic Medicine in Germany and is an appointed **Lecturer and Clinical Instructor at the renowned Still Academy in Germany**—one of Europe’s leading osteopathic academic institutions.\n\nACOOR was founded to bring world-class European osteopathic standards, multidisciplinary rehabilitation, and international hospital coordination directly to patients in Africa.',
+        text: '🏛️ **About ACOOR & Clinical Leadership:**\n\n**ACOOR** (Africa Clinic of Osteopathy and Rehabilitation) was founded by **Albert Nana Yaw Ntekoh**, who completed medical education in Osteopathic Medicine in Germany and is an appointed **Lecturer and Clinical Instructor at the renowned Still Academy in Germany**—one of Europe’s leading osteopathic academic institutions.\n\nACOOR was founded to bring world-class European osteopathic standards, multidisciplinary rehabilitation, and international hospital coordination directly to patients in Africa.',
         action: {
           label: '📖 Read About Us & Clinical Philosophy',
           href: '/about',
@@ -579,7 +579,7 @@ export default function ClinicConcierge() {
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="Albert Physio Live Chat"
+          aria-label="ACOOR Live Chat"
           style={{
             position: 'fixed',
             bottom: '5.2rem',
