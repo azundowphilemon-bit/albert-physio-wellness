@@ -1,253 +1,481 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
-interface SymptomGuide {
-  id: string;
-  symptom: string;
-  tagline: string;
-  recommendedService: string;
-  description: string;
-  howWeHelp: string[];
-  bookingAnchor: string;
+interface ChatAction {
+  label: string;
+  href: string;
+  isExternal?: boolean;
+  type?: 'primary' | 'whatsapp' | 'secondary' | 'map';
 }
 
-interface FaqItem {
+interface Message {
   id: string;
-  category: 'general' | 'pricing' | 'visit' | 'appointments';
-  question: string;
-  answer: string;
-  actionText?: string;
-  actionHref?: string;
+  sender: 'bot' | 'user';
+  text: string;
+  time: string;
+  action?: ChatAction;
+  suggestions?: string[];
+  isEmergency?: boolean;
 }
 
-const SYMPTOM_GUIDES: SymptomGuide[] = [
-  {
-    id: 'back-neck',
-    symptom: 'Lower Back & Neck Pain',
-    tagline: 'Sciatica, stiff neck, postural strain, lumbar spasms',
-    recommendedService: 'Manual Therapy & Spinal Realignment',
-    description: 'Targeted hands-on therapy to relieve acute spinal pressure, mobilise restricted vertebra, and ease muscle guarding.',
-    howWeHelp: [
-      'Gentle joint mobilization & spinal decompression',
-      'Targeted trigger-point muscle release',
-      'Core stabilization and ergonomic correction'
-    ],
-    bookingAnchor: '/book?service=manual-therapy'
-  },
-  {
-    id: 'sports-injury',
-    symptom: 'Sports Injuries & Muscle Sprains',
-    tagline: 'Hamstring strains, sprained ankles, ACL rehab, runner’s knee',
-    recommendedService: 'Sports Physiotherapy & Kinetic Rehab',
-    description: 'Evidence-based protocols to accelerate soft-tissue repair, rebuild explosive joint stability, and safely return to sport.',
-    howWeHelp: [
-      'Biomechanical movement assessment',
-      'Progressive muscle loading and strength recovery',
-      'Agility and return-to-sport testing'
-    ],
-    bookingAnchor: '/book?service=sports-physio'
-  },
-  {
-    id: 'chronic-joints',
-    symptom: 'Joint Stiffness & Chronic Tendon Pain',
-    tagline: 'Shoulder impingement, arthritis, tennis elbow, plantar fasciitis',
-    recommendedService: 'Advanced Rehab (Deep Tissue & Modalities)',
-    description: 'Combines hands-on manual techniques with advanced therapeutic ultrasound and shockwave modalities for deep tissue regeneration.',
-    howWeHelp: [
-      'Deep tissue breakdown of fibrous adhesions',
-      'Targeted electrotherapy & ultrasound stimulation',
-      'Joint capsule lubrication and mobility restore'
-    ],
-    bookingAnchor: '/book?service=advanced-rehab'
-  },
-  {
-    id: 'post-surgery',
-    symptom: 'Post-Surgical Rehabilitation',
-    tagline: 'Knee/hip replacement, arthroscopy, fracture fixation recovery',
-    recommendedService: 'Post-Surgery Recovery Protocol',
-    description: 'Carefully staged, surgeon-aligned physical therapy to prevent scar tissue stiffness and rebuild functional daily strength safely.',
-    howWeHelp: [
-      'Early swelling reduction & circulation support',
-      'Safe passive-to-active range of motion progression',
-      'Gait retraining and independent balance restoration'
-    ],
-    bookingAnchor: '/book?service=post-surgery'
-  }
+const INITIAL_SUGGESTIONS = [
+  '🩺 Which treatment do I need?',
+  '💰 What are your fees & deposit?',
+  '📍 Where is the clinic in Pokuasi?',
+  '⏰ What are your opening hours?',
+  '💬 Chat with Dr. Albert on WhatsApp'
 ];
-
-const FAQS: FaqItem[] = [
-  {
-    id: 'fees',
-    category: 'pricing',
-    question: 'How much does a consultation and treatment session cost?',
-    answer: 'A standard comprehensive consultation and treatment session is 300 GHS. When booking online, a 30% deposit (90 GHS) is required to secure your Google Calendar slot. The remaining balance of 210 GHS is paid at the clinic during your appointment.',
-    actionText: 'Book an Appointment Now',
-    actionHref: '/book'
-  },
-  {
-    id: 'insurance',
-    category: 'pricing',
-    question: 'Do you accept health insurance?',
-    answer: 'Yes! We accommodate both private self-pay patients and major approved corporate and private health insurance schemes. Please bring your insurance membership card or reach out via WhatsApp with your policy details so our front desk can verify coverage.',
-    actionText: 'Ask via WhatsApp',
-    actionHref: 'https://wa.me/49123456789?text=Hello%20Albert%20Physio,%20I%20would%20like%20to%20verify%20my%20insurance%20coverage'
-  },
-  {
-    id: 'hours',
-    category: 'general',
-    question: 'What are your clinic opening hours?',
-    answer: 'We are open Monday through Thursday from 08:00 to 18:00, and Friday from 08:00 to 15:00. We are closed on Saturdays and Sundays (urgent post-op checkups available by prior arrangement).',
-    actionText: 'View Calendar Availability',
-    actionHref: '/book'
-  },
-  {
-    id: 'location',
-    category: 'general',
-    question: 'Where is the clinic located in Pokuasi?',
-    answer: 'Albert Physio & Wellness is located in Pokuasi, Accra, Ghana. We are easily accessible with dedicated, secure on-site parking for patients.',
-    actionText: 'Open in Google Maps',
-    actionHref: 'https://maps.google.com/?q=Pokuasi,+Accra,+Ghana'
-  },
-  {
-    id: 'wear',
-    category: 'visit',
-    question: 'What should I wear to my first appointment?',
-    answer: 'Please wear loose, flexible, and comfortable sportswear (e.g. t-shirt, shorts, or track pants) that allows Dr. Albert to easily examine and mobilize your affected muscles and joints.'
-  },
-  {
-    id: 'bring',
-    category: 'visit',
-    question: 'What documents or scans should I bring?',
-    answer: 'Please bring your photo ID, along with any previous medical records, X-rays, MRI scans, or doctor referral letters if available. If you don’t have prior scans, don’t worry—Dr. Albert performs a complete clinical assessment during your first visit.'
-  },
-  {
-    id: 'cancel',
-    category: 'appointments',
-    question: 'Can I cancel or reschedule an existing appointment?',
-    answer: 'Yes! You can reschedule or cancel directly from your Patient Dashboard up to 24 hours before your appointment. If you need to make changes within 24 hours, please message us on WhatsApp as soon as possible.',
-    actionText: 'Go to Patient Dashboard',
-    actionHref: '/dashboard'
-  },
-  {
-    id: 'duration',
-    category: 'visit',
-    question: 'How long does a physiotherapy session take?',
-    answer: 'Your initial session takes approximately 45 to 60 minutes. This includes a thorough diagnostic assessment, hands-on treatment, and a tailored home exercise guidance plan.'
-  }
-];
-
-const EMERGENCY_KEYWORDS = [
-  'chest pain',
-  'heart',
-  'stroke',
-  'paralysis',
-  'cannot walk',
-  'can\'t walk',
-  'broken',
-  'fracture',
-  'emergency',
-  'bleeding',
-  'unconscious',
-  'fainted',
-  'loss of bowel',
-  'loss of bladder',
-  'saddle numbness',
-  'groin numbness',
-  'severe trauma'
-];
-
-type ViewMode = 'main' | 'symptoms' | 'symptom-detail' | 'pricing' | 'hours' | 'faqs' | 'contact';
 
 export default function ClinicConcierge() {
   const [isOpen, setIsOpen] = useState(false);
-  const [view, setView] = useState<ViewMode>('main');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSymptomId, setSelectedSymptomId] = useState<string | null>(null);
+  const [inputText, setInputText] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const isEmergencyQuery = useMemo(() => {
-    if (!searchQuery.trim()) return false;
-    const lower = searchQuery.toLowerCase();
-    return EMERGENCY_KEYWORDS.some(kw => lower.includes(kw));
-  }, [searchQuery]);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: 'welcome',
+      sender: 'bot',
+      text: 'Hello! 👋 Welcome to Albert Physio & Wellness. I am Dr. Albert’s virtual clinic assistant.\n\nHow can I help you today? You can type your condition or question, or tap any of the topics below:',
+      time: 'Just now',
+      suggestions: INITIAL_SUGGESTIONS
+    }
+  ]);
 
-  const filteredFaqs = useMemo(() => {
-    if (!searchQuery.trim()) return FAQS;
-    const q = searchQuery.toLowerCase();
-    return FAQS.filter(
-      f => f.question.toLowerCase().includes(q) || f.answer.toLowerCase().includes(q)
-    );
-  }, [searchQuery]);
-
-  const filteredSymptoms = useMemo(() => {
-    if (!searchQuery.trim()) return SYMPTOM_GUIDES;
-    const q = searchQuery.toLowerCase();
-    return SYMPTOM_GUIDES.filter(
-      s => s.symptom.toLowerCase().includes(q) ||
-           s.tagline.toLowerCase().includes(q) ||
-           s.recommendedService.toLowerCase().includes(q) ||
-           s.description.toLowerCase().includes(q)
-    );
-  }, [searchQuery]);
-
-  const activeSymptom = useMemo(() => {
-    return SYMPTOM_GUIDES.find(s => s.id === selectedSymptomId) || null;
-  }, [selectedSymptomId]);
-
-  const handleOpen = () => {
-    setIsOpen(true);
-    setHasInteracted(true);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleClose = () => {
-    setIsOpen(false);
+  useEffect(() => {
+    if (isOpen) {
+      scrollToBottom();
+    }
+  }, [messages, isOpen, isTyping]);
+
+  const getBotResponse = (userInput: string): Omit<Message, 'id' | 'sender' | 'time'> => {
+    const q = userInput.toLowerCase().trim();
+
+    // 1. Emergency Red-Flag Triage
+    if (
+      q.includes('chest pain') ||
+      q.includes('heart') ||
+      q.includes('stroke') ||
+      q.includes('cannot breathe') ||
+      q.includes("can't breathe") ||
+      q.includes('paralysis') ||
+      q.includes('cannot walk') ||
+      q.includes("can't walk") ||
+      q.includes('bleeding') ||
+      q.includes('fainted') ||
+      q.includes('groin numbness') ||
+      q.includes('loss of bladder') ||
+      q.includes('emergency')
+    ) {
+      return {
+        text: '⚠️ URGENT MEDICAL ADVISORY:\n\nIf you are experiencing severe acute trauma, loss of limb sensation, chest pain, or sudden loss of bowel/bladder control, please proceed immediately to an emergency hospital department or call local emergency services.\n\nOur outpatient physiotherapy clinic is designed for non-emergency musculoskeletal rehabilitation.',
+        isEmergency: true,
+        action: {
+          label: 'Call Emergency Hospital',
+          href: 'tel:112',
+          type: 'secondary'
+        },
+        suggestions: ['What non-emergency services do you offer?', 'Where is your clinic located?']
+      };
+    }
+
+    // 2. Back & Neck Pain
+    if (
+      q.includes('back') ||
+      q.includes('neck') ||
+      q.includes('spine') ||
+      q.includes('sciatica') ||
+      q.includes('lumbar') ||
+      q.includes('stiff') ||
+      q.includes('disc') ||
+      q.includes('hernia')
+    ) {
+      return {
+        text: 'For back, neck, and spinal discomfort, Dr. Albert recommends our **Manual Therapy & Spinal Realignment** program.\n\nThis hands-on therapy decompresses restricted spinal segments, releases muscle spasms, and restores comfortable pain-free mobility.',
+        action: {
+          label: '📅 Book Manual Therapy (300 GHS)',
+          href: '/book?service=manual-therapy',
+          type: 'primary'
+        },
+        suggestions: ['How much is the deposit?', 'What should I wear to my visit?', 'Chat on WhatsApp']
+      };
+    }
+
+    // 3. Sports Injury & Sprains
+    if (
+      q.includes('sport') ||
+      q.includes('football') ||
+      q.includes('ankle') ||
+      q.includes('knee') ||
+      q.includes('acl') ||
+      q.includes('hamstring') ||
+      q.includes('muscle tear') ||
+      q.includes('sprain') ||
+      q.includes('run')
+    ) {
+      return {
+        text: 'For sports injuries, ligament strains, and muscle pulls, we specialize in **Sports Physiotherapy & Athletic Rehab**.\n\nWe provide biomechanical movement screenings, progressive muscle loading, and functional return-to-sport testing to get you back to peak performance safely.',
+        action: {
+          label: '📅 Book Sports Physio Visit',
+          href: '/book?service=sports-physio',
+          type: 'primary'
+        },
+        suggestions: ['What happens during the first visit?', 'Do you accept insurance?', 'Speak with Dr. Albert']
+      };
+    }
+
+    // 4. Post-Surgery Recovery
+    if (
+      q.includes('surgery') ||
+      q.includes('operation') ||
+      q.includes('replacement') ||
+      q.includes('post-op') ||
+      q.includes('fracture')
+    ) {
+      return {
+        text: 'We provide structured, surgeon-aligned **Post-Surgical Orthopedic Recovery** protocols for knee replacements, hip surgeries, arthroscopic repairs, and fractures.\n\nDr. Albert ensures safe passive-to-active range of motion progression while preventing scar tissue stiffness.',
+        action: {
+          label: '📅 Book Post-Surgical Rehab',
+          href: '/book?service=post-surgery',
+          type: 'primary'
+        },
+        suggestions: ['What documents should I bring?', 'Where is the clinic located?']
+      };
+    }
+
+    // 5. Swelling / Lymphatic Drainage
+    if (
+      q.includes('swell') ||
+      q.includes('fluid') ||
+      q.includes('edema') ||
+      q.includes('lymph') ||
+      q.includes('circulation')
+    ) {
+      return {
+        text: 'Our **Medical Lymphatic Drainage & Edema Care** utilizes specialized gentle decongestive techniques to stimulate lymphatic circulation, rapidly clearing post-operative fluid accumulation and reducing heavy, swollen limbs.',
+        action: {
+          label: '📅 Book Lymphatic Therapy',
+          href: '/book?service=lymphatic-drainage',
+          type: 'primary'
+        },
+        suggestions: ['Consultation pricing', 'Location in Pokuasi']
+      };
+    }
+
+    // 6. Muscle Knots / Massage / Trigger Point / Headaches
+    if (
+      q.includes('knot') ||
+      q.includes('massage') ||
+      q.includes('deep tissue') ||
+      q.includes('headache') ||
+      q.includes('trigger') ||
+      q.includes('myofascial')
+    ) {
+      return {
+        text: 'Our **Trigger Point & Myofascial Deep Release** targets hyper-irritable muscle knots to eliminate referred pain, release chronic shoulder tension, and relieve persistent tension headaches.',
+        action: {
+          label: '📅 Book Deep Tissue Session',
+          href: '/book?service=trigger-point',
+          type: 'primary'
+        },
+        suggestions: ['What are your opening hours?', 'Book an appointment']
+      };
+    }
+
+    // 7. Tech-Neck & Posture
+    if (
+      q.includes('posture') ||
+      q.includes('desk') ||
+      q.includes('sitting') ||
+      q.includes('tech neck') ||
+      q.includes('shoulder')
+    ) {
+      return {
+        text: 'Suffering from desk strain? Our **Cervical Spine, Neck & Posture Alignment** program corrects tech-neck, rounded shoulders, and upper back tightness through spinal mobilization and ergonomic strengthening.',
+        action: {
+          label: '📅 Book Posture Alignment',
+          href: '/book?service=posture-care',
+          type: 'primary'
+        },
+        suggestions: ['Where is the clinic?', 'Pricing & Fees']
+      };
+    }
+
+    // 8. Chronic Pain / Ultrasound / Shockwave
+    if (
+      q.includes('ultrasound') ||
+      q.includes('shockwave') ||
+      q.includes('electro') ||
+      q.includes('chronic') ||
+      q.includes('tendon') ||
+      q.includes('bursitis') ||
+      q.includes('arthritis')
+    ) {
+      return {
+        text: 'For chronic joint pain and tendonitis, we offer **Advanced Electrotherapy & Deep Ultrasound**.\n\nThis modality stimulates deep collagen repair, increases local blood supply, and breaks down stubborn calcified tissues.',
+        action: {
+          label: '📅 Book Advanced Rehab Session',
+          href: '/book?service=advanced-rehab',
+          type: 'primary'
+        },
+        suggestions: ['Pricing & Insurance', 'What should I wear?']
+      };
+    }
+
+    // 9. Pricing, Fees & Deposit
+    if (
+      q.includes('price') ||
+      q.includes('cost') ||
+      q.includes('fee') ||
+      q.includes('how much') ||
+      q.includes('deposit') ||
+      q.includes('ghs') ||
+      q.includes('rate') ||
+      q.includes('pay')
+    ) {
+      return {
+        text: 'Here is our transparent pricing:\n\n• **Comprehensive Session:** 300 GHS (45–60 min 1-on-1 with Dr. Albert)\n• **Online Booking Deposit:** 90 GHS (30% to reserve your exact Google Calendar slot)\n• **Remaining Balance:** 210 GHS paid at the clinic during your appointment.',
+        action: {
+          label: '📅 Book Slot Now (90 GHS Deposit)',
+          href: '/book',
+          type: 'primary'
+        },
+        suggestions: ['Do you accept health insurance?', 'Where is the clinic in Pokuasi?', 'Chat on WhatsApp']
+      };
+    }
+
+    // 10. Health Insurance
+    if (q.includes('insurance') || q.includes('nhis') || q.includes('coverage') || q.includes('claim')) {
+      return {
+        text: 'Yes! We welcome both private self-pay patients and major approved corporate and private health insurance schemes.\n\nPlease bring your valid membership card or policy slip, or message us directly on WhatsApp so our front desk can confirm your coverage in advance.',
+        action: {
+          label: '💬 Check Insurance on WhatsApp',
+          href: 'https://wa.me/49123456789?text=Hello%20Albert%20Physio,%20I%20would%20like%20to%20verify%20my%20insurance%20coverage',
+          isExternal: true,
+          type: 'whatsapp'
+        },
+        suggestions: ['What are your opening hours?', 'Book an appointment']
+      };
+    }
+
+    // 11. Location, Address, Directions, Parking
+    if (
+      q.includes('location') ||
+      q.includes('where') ||
+      q.includes('address') ||
+      q.includes('pokuasi') ||
+      q.includes('accra') ||
+      q.includes('map') ||
+      q.includes('park') ||
+      q.includes('direction')
+    ) {
+      return {
+        text: '📍 **Clinic Location:**\nAlbert Physio & Wellness is located in **Pokuasi, Accra, Ghana**.\n\nWe are conveniently accessible with dedicated, secure on-site parking for all our patients.',
+        action: {
+          label: '🗺️ Open in Google Maps',
+          href: 'https://maps.google.com/?q=Pokuasi,+Accra,+Ghana',
+          isExternal: true,
+          type: 'map'
+        },
+        suggestions: ['What are your opening hours?', 'What treatments do you offer?', 'Book an appointment']
+      };
+    }
+
+    // 12. Opening Hours
+    if (q.includes('hour') || q.includes('open') || q.includes('close') || q.includes('time') || q.includes('saturday') || q.includes('sunday')) {
+      return {
+        text: '⏰ **Clinic Hours:**\n\n• **Monday – Thursday:** 08:00 – 18:00\n• **Friday:** 08:00 – 15:00\n• **Saturday & Sunday:** Closed *(urgent post-op follow-ups by prior arrangement)*\n\nYou can book appointments 24/7 directly through our real-time calendar!',
+        action: {
+          label: '📅 View Real-Time Availability',
+          href: '/book',
+          type: 'primary'
+        },
+        suggestions: ['Where is the clinic?', 'How much does a session cost?']
+      };
+    }
+
+    // 13. What to wear or bring
+    if (q.includes('wear') || q.includes('bring') || q.includes('cloth') || q.includes('document') || q.includes('x-ray') || q.includes('mri')) {
+      return {
+        text: '👕 **What to wear:**\nPlease wear comfortable, flexible sportswear (shorts, t-shirt, sweatpants) so Dr. Albert can easily examine and mobilize your joints.\n\n📋 **What to bring:**\nPlease bring your photo ID and any previous X-rays, MRI scans, or doctor referral notes if you have them. If not, Dr. Albert will perform a full diagnostic assessment during your session.',
+        suggestions: ['How long does a session take?', 'Book an appointment']
+      };
+    }
+
+    // 14. Session Duration
+    if (q.includes('duration') || q.includes('long') || q.includes('minute') || q.includes('session')) {
+      return {
+        text: '⏱️ Each standard physiotherapy appointment takes approximately **45 to 60 minutes**.\n\nThis includes a comprehensive clinical assessment, personalized hands-on therapy, and take-home functional exercise instructions.',
+        action: {
+          label: '📅 Book Your 45–60 Min Session',
+          href: '/book',
+          type: 'primary'
+        },
+        suggestions: ['Pricing & Fees', 'Clinic Location']
+      };
+    }
+
+    // 15. Cancel or Reschedule
+    if (q.includes('cancel') || q.includes('reschedule') || q.includes('change date') || q.includes('change time')) {
+      return {
+        text: 'You can easily reschedule or cancel an existing appointment directly from your **Patient Dashboard** up to 24 hours prior to your scheduled time.\n\nIf you need urgent assistance within 24 hours, please message us directly on WhatsApp.',
+        action: {
+          label: '👤 Open Patient Dashboard',
+          href: '/dashboard',
+          type: 'secondary'
+        },
+        suggestions: ['Chat on WhatsApp', 'Clinic Opening Hours']
+      };
+    }
+
+    // 16. WhatsApp / Human Contact
+    if (
+      q.includes('whatsapp') ||
+      q.includes('chat') ||
+      q.includes('talk') ||
+      q.includes('speak') ||
+      q.includes('call') ||
+      q.includes('phone') ||
+      q.includes('human') ||
+      q.includes('reception') ||
+      q.includes('doctor') ||
+      q.includes('albert')
+    ) {
+      return {
+        text: 'You can connect directly with Dr. Albert or our reception staff via WhatsApp or phone right now:\n\n• **WhatsApp:** Instant messaging\n• **Phone:** +49 123 456 789\n• **Email:** info@albert-physio.de',
+        action: {
+          label: '💬 Open WhatsApp (+49 123 456 789)',
+          href: 'https://wa.me/49123456789?text=Hello%20Dr.%20Albert,%20I%20have%20a%20question%20about%20physiotherapy',
+          isExternal: true,
+          type: 'whatsapp'
+        },
+        suggestions: ['Book an appointment online', 'Clinic Location & Hours']
+      };
+    }
+
+    // 17. Which treatment do I need? (Interactive guide)
+    if (q.includes('treatment') || q.includes('service') || q.includes('offer') || q.includes('program') || q.includes('help me')) {
+      return {
+        text: 'Dr. Albert offers 8 specialized clinical programs:\n\n1. **Manual Therapy** (Spine, back & neck pain)\n2. **Sports Physio** (Sprains, athletic tears)\n3. **Post-Surgery Recovery** (Joint replacements)\n4. **Advanced Electrotherapy** (Chronic joint pain)\n5. **Lymphatic Drainage** (Swelling & fluid relief)\n6. **Trigger Point Release** (Muscle knots & headaches)\n7. **Posture Alignment** (Desk workers & tech-neck)\n8. **Functional Joint Mobility** (Osteoarthritis & aging)\n\nWhich of these conditions are you experiencing?',
+        suggestions: ['Back & Neck Pain', 'Sports Injury', 'Post-Surgery Rehab', 'Swelling & Edema', 'Muscle Knots']
+      };
+    }
+
+    // Default Fallback
+    return {
+      text: `Thank you for asking! Dr. Albert specializes in evidence-based physiotherapy tailored to your exact condition.\n\nWould you like to schedule an appointment, or speak directly with Dr. Albert on WhatsApp?`,
+      action: {
+        label: '📅 Book Appointment Online',
+        href: '/book',
+        type: 'primary'
+      },
+      suggestions: [
+        '🩺 Which treatment do I need?',
+        '💰 Fees & Deposit (300 GHS)',
+        '💬 Chat with Dr. Albert on WhatsApp',
+        '📍 Location in Pokuasi'
+      ]
+    };
   };
 
-  const handleSelectSymptom = (id: string) => {
-    setSelectedSymptomId(id);
-    setView('symptom-detail');
+  const handleSendMessage = (textToSend?: string) => {
+    const text = (textToSend || inputText).trim();
+    if (!text) return;
+
+    const userMessage: Message = {
+      id: `user-${Date.now()}`,
+      sender: 'user',
+      text,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInputText('');
+    setIsTyping(true);
+
+    // Simulate realistic typing delay (450ms)
+    setTimeout(() => {
+      const botReply = getBotResponse(text);
+      const botMessage: Message = {
+        id: `bot-${Date.now()}`,
+        sender: 'bot',
+        text: botReply.text,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        action: botReply.action,
+        suggestions: botReply.suggestions,
+        isEmergency: botReply.isEmergency
+      };
+      setMessages(prev => [...prev, botMessage]);
+      setIsTyping(false);
+    }, 450);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSendMessage();
+    }
+  };
+
+  const resetChat = () => {
+    setMessages([
+      {
+        id: 'welcome',
+        sender: 'bot',
+        text: 'Hello again! 👋 How can I assist you with your health or booking today?',
+        time: 'Just now',
+        suggestions: INITIAL_SUGGESTIONS
+      }
+    ]);
   };
 
   return (
     <>
-      {/* Floating Trigger Button */}
+      {/* Floating Chat Trigger Button */}
       <aside 
         style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: 1100 }}
-        aria-label="Clinic Support Assistant"
+        aria-label="Clinic Support Chatbot"
       >
         <button
-          onClick={() => (isOpen ? handleClose() : handleOpen())}
-          aria-label={isOpen ? 'Close Clinic Assistant' : 'Open Clinic Assistant & FAQ'}
+          onClick={() => {
+            setIsOpen(!isOpen);
+            setHasInteracted(true);
+          }}
+          aria-label={isOpen ? 'Close Live Chat' : 'Chat with Dr. Albert Assistant'}
           style={{
             background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
             color: '#ffffff',
             border: 'none',
             borderRadius: '9999px',
-            padding: '0.75rem 1.25rem',
-            boxShadow: '0 8px 24px rgba(13, 148, 136, 0.35), 0 2px 6px rgba(0, 0, 0, 0.08)',
+            padding: '0.8rem 1.35rem',
+            boxShadow: '0 10px 28px rgba(13, 148, 136, 0.38), 0 2px 6px rgba(0, 0, 0, 0.08)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.65rem',
+            gap: '0.7rem',
             fontWeight: 600,
-            fontSize: '0.92rem',
+            fontSize: '0.94rem',
             transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease',
           }}
           onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-2px)')}
           onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0)')}
         >
           <span style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-            <span style={{ fontSize: '1.25rem' }}>💬</span>
+            <span style={{ fontSize: '1.3rem' }}>💬</span>
             {!hasInteracted && (
               <span
                 style={{
                   position: 'absolute',
-                  top: '-2px',
-                  right: '-2px',
-                  width: '9px',
-                  height: '9px',
+                  top: '-3px',
+                  right: '-3px',
+                  width: '10px',
+                  height: '10px',
                   backgroundColor: '#34d399',
                   borderRadius: '50%',
                   border: '2px solid #0f766e',
@@ -255,26 +483,25 @@ export default function ClinicConcierge() {
               />
             )}
           </span>
-          <span>{isOpen ? 'Close Assistant' : 'Clinic Assistant & FAQ'}</span>
+          <span>{isOpen ? 'Close Chat' : 'Chat with Us'}</span>
         </button>
       </aside>
 
-      {/* Concierge Modal / Panel */}
+      {/* Conversational Chat Window */}
       {isOpen && (
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="Albert Physio & Wellness Support Assistant"
+          aria-label="Albert Physio Live Chat"
           style={{
             position: 'fixed',
             bottom: '5.2rem',
             right: '1.5rem',
-            width: 'min(440px, calc(100vw - 2rem))',
-            maxHeight: 'min(640px, calc(100vh - 7rem))',
-            background: 'rgba(255, 255, 255, 0.98)',
-            backdropFilter: 'blur(16px)',
-            borderRadius: '20px',
-            boxShadow: '0 20px 45px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(13, 148, 136, 0.15)',
+            width: 'min(430px, calc(100vw - 2rem))',
+            height: 'min(620px, calc(100vh - 7rem))',
+            background: '#ffffff',
+            borderRadius: '22px',
+            boxShadow: '0 24px 50px rgba(15, 23, 42, 0.2), 0 0 0 1px rgba(13, 148, 136, 0.15)',
             display: 'flex',
             flexDirection: 'column',
             zIndex: 1100,
@@ -283,708 +510,259 @@ export default function ClinicConcierge() {
             animation: 'fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards',
           }}
         >
-          {/* Header */}
+          {/* Conversational Header */}
           <div
             style={{
               background: 'linear-gradient(135deg, #0d9488 0%, #115e59 100%)',
               color: '#ffffff',
-              padding: '1.1rem 1.25rem',
+              padding: '1rem 1.25rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              {view !== 'main' && (
-                <button
-                  onClick={() => {
-                    setView('main');
-                    setSelectedSymptomId(null);
-                  }}
-                  aria-label="Back to main menu"
-                  style={{
-                    background: 'rgba(255,255,255,0.2)',
-                    border: 'none',
-                    color: '#fff',
-                    borderRadius: '8px',
-                    width: '30px',
-                    height: '30px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    fontSize: '1rem',
-                  }}
-                >
-                  ←
-                </button>
-              )}
               <div
                 style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '10px',
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
                   background: 'rgba(255,255,255,0.2)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '1.2rem',
+                  fontSize: '1.3rem',
+                  border: '2px solid rgba(255,255,255,0.3)',
                 }}
               >
                 🩺
               </div>
               <div>
-                <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#fff', fontFamily: "'Outfit', sans-serif" }}>
-                  Albert Physio Concierge
+                <h3 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 700, color: '#fff', fontFamily: "'Outfit', sans-serif" }}>
+                  Albert Physio Live Support
                 </h3>
-                <p style={{ margin: 0, fontSize: '0.75rem', opacity: 0.9, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <p style={{ margin: 0, fontSize: '0.75rem', opacity: 0.92, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                   <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#34d399', display: 'inline-block' }} />
-                  Online • Dr. Albert’s Front Desk
+                  Dr. Albert’s Virtual Reception • Online
                 </p>
               </div>
             </div>
 
-            <button
-              onClick={handleClose}
-              aria-label="Close Assistant"
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: 'rgba(255,255,255,0.85)',
-                fontSize: '1.3rem',
-                cursor: 'pointer',
-                padding: '0.3rem',
-                lineHeight: 1,
-              }}
-            >
-              ✕
-            </button>
-          </div>
-
-          {/* Search Bar */}
-          <div style={{ padding: '0.85rem 1rem 0.5rem 1rem', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-            <div style={{ position: 'relative' }}>
-              <input
-                type="text"
-                placeholder="Search symptoms, fees, hours, parking..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <button
+                onClick={resetChat}
+                title="Restart conversation"
+                aria-label="Restart conversation"
                 style={{
-                  width: '100%',
-                  padding: '0.65rem 0.85rem 0.65rem 2.2rem',
-                  fontSize: '0.88rem',
-                  borderRadius: '12px',
-                  border: '1px solid #cbd5e1',
-                  background: '#ffffff',
-                  color: '#1e293b',
-                  outline: 'none',
-                  boxSizing: 'border-box',
+                  background: 'rgba(255,255,255,0.15)',
+                  border: 'none',
+                  color: '#fff',
+                  borderRadius: '8px',
+                  width: '30px',
+                  height: '30px',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
-              />
-              <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', opacity: 0.5, fontSize: '0.9rem' }}>
-                🔍
-              </span>
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  style={{
-                    position: 'absolute',
-                    right: '0.65rem',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    color: '#94a3b8',
-                    cursor: 'pointer',
-                  }}
-                >
-                  ✕
-                </button>
-              )}
+              >
+                🔄
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                aria-label="Close Chat"
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'rgba(255,255,255,0.85)',
+                  fontSize: '1.3rem',
+                  cursor: 'pointer',
+                  padding: '0.3rem',
+                  lineHeight: 1,
+                }}
+              >
+                ✕
+              </button>
             </div>
           </div>
 
-          {/* Body Content Area */}
+          {/* Messages Container */}
           <div
             style={{
-              padding: '1rem',
+              padding: '1.1rem 1rem',
               overflowY: 'auto',
               flex: 1,
               display: 'flex',
               flexDirection: 'column',
-              gap: '0.85rem',
+              gap: '1rem',
+              background: '#f8fafc',
             }}
           >
-            {/* Emergency Alert (Safety Shield) */}
-            {isEmergencyQuery && (
+            {messages.map((msg) => (
               <div
+                key={msg.id}
                 style={{
-                  background: '#fef2f2',
-                  border: '1px solid #fecaca',
-                  borderRadius: '12px',
-                  padding: '0.85rem',
-                  color: '#991b1b',
-                  fontSize: '0.85rem',
-                  lineHeight: '1.4',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start',
                 }}
               >
-                <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.3rem' }}>
-                  <span>⚠️</span> Urgent Medical Advisory
+                <div
+                  style={{
+                    maxWidth: '85%',
+                    padding: '0.85rem 1rem',
+                    borderRadius: msg.sender === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                    background: msg.sender === 'user' 
+                      ? 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)' 
+                      : (msg.isEmergency ? '#fef2f2' : '#ffffff'),
+                    color: msg.sender === 'user' ? '#ffffff' : (msg.isEmergency ? '#991b1b' : '#1e293b'),
+                    border: msg.sender === 'user' ? 'none' : (msg.isEmergency ? '1px solid #fecaca' : '1px solid #e2e8f0'),
+                    boxShadow: '0 2px 8px rgba(15, 23, 42, 0.05)',
+                    fontSize: '0.88rem',
+                    lineHeight: '1.48',
+                    whiteSpace: 'pre-line',
+                  }}
+                >
+                  {msg.text}
+
+                  {/* Message Action Button */}
+                  {msg.action && (
+                    <div style={{ marginTop: '0.85rem' }}>
+                      {msg.action.isExternal ? (
+                        <a
+                          href={msg.action.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={getActionButtonStyle(msg.action.type)}
+                        >
+                          {msg.action.label}
+                        </a>
+                      ) : (
+                        <Link
+                          href={msg.action.href}
+                          onClick={() => setIsOpen(false)}
+                          style={getActionButtonStyle(msg.action.type)}
+                        >
+                          {msg.action.label}
+                        </Link>
+                      )}
+                    </div>
+                  )}
                 </div>
-                If you are experiencing severe acute trauma, loss of limb sensation, chest pain, or sudden loss of bowel/bladder control, please proceed immediately to an emergency hospital department or call emergency services. Outpatient physiotherapy is designed for rehabilitation and non-emergency musculoskeletal recovery.
-              </div>
-            )}
 
-            {/* If user is searching */}
-            {searchQuery.trim().length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>
-                  Search Results ({filteredSymptoms.length + filteredFaqs.length})
-                </p>
+                <span style={{ fontSize: '0.68rem', color: '#94a3b8', marginTop: '0.25rem', padding: '0 0.4rem' }}>
+                  {msg.time}
+                </span>
 
-                {/* Matched Symptoms */}
-                {filteredSymptoms.map(item => (
+                {/* Quick Suggestion Chips */}
+                {msg.suggestions && msg.suggestions.length > 0 && (
                   <div
-                    key={item.id}
-                    onClick={() => handleSelectSymptom(item.id)}
                     style={{
-                      background: '#f0fdfa',
-                      border: '1px solid #99f6e4',
-                      borderRadius: '12px',
-                      padding: '0.75rem 0.9rem',
-                      cursor: 'pointer',
-                      transition: 'background 0.15s ease',
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: '0.4rem',
+                      marginTop: '0.65rem',
+                      maxWidth: '92%',
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontWeight: 600, fontSize: '0.9rem', color: '#0f766e' }}>
-                        🩺 {item.symptom}
-                      </span>
-                      <span style={{ fontSize: '0.75rem', color: '#0d9488', fontWeight: 600 }}>View Plan →</span>
-                    </div>
-                    <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: '#334155' }}>
-                      Rec: <strong>{item.recommendedService}</strong>
-                    </p>
-                  </div>
-                ))}
-
-                {/* Matched FAQs */}
-                {filteredFaqs.map(item => (
-                  <div
-                    key={item.id}
-                    style={{
-                      background: '#ffffff',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '12px',
-                      padding: '0.85rem',
-                    }}
-                  >
-                    <div style={{ fontWeight: 600, fontSize: '0.88rem', color: '#0f172a', marginBottom: '0.35rem' }}>
-                      ❓ {item.question}
-                    </div>
-                    <div style={{ fontSize: '0.82rem', color: '#475569', lineHeight: '1.45' }}>
-                      {item.answer}
-                    </div>
-                    {item.actionHref && item.actionText && (
-                      <Link
-                        href={item.actionHref}
-                        onClick={handleClose}
-                        style={{
-                          display: 'inline-block',
-                          marginTop: '0.5rem',
-                          fontSize: '0.8rem',
-                          color: '#0d9488',
-                          fontWeight: 600,
-                          textDecoration: 'none',
-                        }}
-                      >
-                        {item.actionText} →
-                      </Link>
-                    )}
-                  </div>
-                ))}
-
-                {filteredSymptoms.length === 0 && filteredFaqs.length === 0 && (
-                  <div style={{ textAlign: 'center', padding: '1.5rem 1rem', color: '#64748b' }}>
-                    <p style={{ margin: '0 0 0.5rem', fontSize: '0.9rem' }}>No direct answers matched your query.</p>
-                    <p style={{ fontSize: '0.8rem', margin: 0 }}>Would you like to ask Dr. Albert or our reception directly?</p>
-                    <a
-                      href={`https://wa.me/49123456789?text=Hello%20Albert%20Physio,%20I%20have%20a%20question:%20${encodeURIComponent(searchQuery)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.4rem',
-                        marginTop: '0.85rem',
-                        background: '#25D366',
-                        color: '#fff',
-                        padding: '0.5rem 1rem',
-                        borderRadius: '9999px',
-                        textDecoration: 'none',
-                        fontSize: '0.85rem',
-                        fontWeight: 600,
-                      }}
-                    >
-                      <span>💬</span> Ask on WhatsApp
-                    </a>
-                  </div>
-                )}
-              </div>
-            ) : (
-              /* View-Specific Navigation */
-              <>
-                {view === 'main' && (
-                  <>
-                    {/* Welcome Card */}
-                    <div
-                      style={{
-                        background: 'linear-gradient(135deg, #f0fdfa 0%, #e6fffa 100%)',
-                        border: '1px solid #ccfbf1',
-                        borderRadius: '14px',
-                        padding: '0.9rem 1rem',
-                      }}
-                    >
-                      <p style={{ margin: 0, fontSize: '0.88rem', color: '#0f766e', fontWeight: 600 }}>
-                        👋 Hello & Welcome to Albert Physio!
-                      </p>
-                      <p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: '#334155', lineHeight: '1.4' }}>
-                        How can we assist you today? Choose an option below for fast guidance or click to reach us immediately.
-                      </p>
-                    </div>
-
-                    {/* Quick Action Grid */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem' }}>
+                    {msg.suggestions.map((sug, idx) => (
                       <button
-                        onClick={() => setView('symptoms')}
-                        style={cardButtonStyle}
-                      >
-                        <span style={{ fontSize: '1.3rem' }}>🩺</span>
-                        <div>
-                          <strong style={{ display: 'block', fontSize: '0.85rem', color: '#0f172a' }}>Treatment Matcher</strong>
-                          <span style={{ fontSize: '0.72rem', color: '#64748b' }}>Find the right therapy</span>
-                        </div>
-                      </button>
-
-                      <button
-                        onClick={() => setView('pricing')}
-                        style={cardButtonStyle}
-                      >
-                        <span style={{ fontSize: '1.3rem' }}>💰</span>
-                        <div>
-                          <strong style={{ display: 'block', fontSize: '0.85rem', color: '#0f172a' }}>Fees & Insurance</strong>
-                          <span style={{ fontSize: '0.72rem', color: '#64748b' }}>Consultation & deposits</span>
-                        </div>
-                      </button>
-
-                      <button
-                        onClick={() => setView('hours')}
-                        style={cardButtonStyle}
-                      >
-                        <span style={{ fontSize: '1.3rem' }}>📍</span>
-                        <div>
-                          <strong style={{ display: 'block', fontSize: '0.85rem', color: '#0f172a' }}>Hours & Pokuasi</strong>
-                          <span style={{ fontSize: '0.72rem', color: '#64748b' }}>Location & schedule</span>
-                        </div>
-                      </button>
-
-                      <button
-                        onClick={() => setView('faqs')}
-                        style={cardButtonStyle}
-                      >
-                        <span style={{ fontSize: '1.3rem' }}>❓</span>
-                        <div>
-                          <strong style={{ display: 'block', fontSize: '0.85rem', color: '#0f172a' }}>First Visit FAQs</strong>
-                          <span style={{ fontSize: '0.72rem', color: '#64748b' }}>What to wear & bring</span>
-                        </div>
-                      </button>
-                    </div>
-
-                    {/* Primary Booking Call-to-Action */}
-                    <div
-                      style={{
-                        background: '#ffffff',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '14px',
-                        padding: '0.9rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: '0.75rem',
-                      }}
-                    >
-                      <div>
-                        <div style={{ fontWeight: 600, fontSize: '0.86rem', color: '#0f172a' }}>Ready to schedule?</div>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Real-time Google Calendar booking</div>
-                      </div>
-                      <Link
-                        href="/book"
-                        onClick={handleClose}
-                        style={{
-                          background: '#0d9488',
-                          color: '#ffffff',
-                          padding: '0.55rem 0.95rem',
-                          borderRadius: '10px',
-                          fontSize: '0.82rem',
-                          fontWeight: 600,
-                          textDecoration: 'none',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        Book Now →
-                      </Link>
-                    </div>
-
-                    {/* Direct Contact Button */}
-                    <button
-                      onClick={() => setView('contact')}
-                      style={{
-                        background: '#f8fafc',
-                        border: '1px solid #cbd5e1',
-                        borderRadius: '12px',
-                        padding: '0.65rem',
-                        fontSize: '0.82rem',
-                        color: '#334155',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.5rem',
-                      }}
-                    >
-                      <span>💬</span> Speak with Dr. Albert or Reception Directly
-                    </button>
-                  </>
-                )}
-
-                {/* Treatment / Symptom Finder List */}
-                {view === 'symptoms' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-                    <div style={{ fontSize: '0.82rem', color: '#475569', marginBottom: '0.2rem' }}>
-                      Select the primary condition or discomfort you are experiencing:
-                    </div>
-                    {SYMPTOM_GUIDES.map(item => (
-                      <div
-                        key={item.id}
-                        onClick={() => handleSelectSymptom(item.id)}
+                        key={idx}
+                        onClick={() => handleSendMessage(sug)}
                         style={{
                           background: '#ffffff',
-                          border: '1px solid #e2e8f0',
-                          borderRadius: '12px',
-                          padding: '0.85rem',
+                          border: '1px solid #ccfbf1',
+                          color: '#0f766e',
+                          padding: '0.35rem 0.75rem',
+                          borderRadius: '9999px',
+                          fontSize: '0.78rem',
+                          fontWeight: 500,
                           cursor: 'pointer',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
                           transition: 'all 0.15s ease',
+                          textAlign: 'left',
                         }}
                         onMouseEnter={e => {
-                          e.currentTarget.style.borderColor = '#0d9488';
                           e.currentTarget.style.background = '#f0fdfa';
+                          e.currentTarget.style.borderColor = '#0d9488';
                         }}
                         onMouseLeave={e => {
-                          e.currentTarget.style.borderColor = '#e2e8f0';
                           e.currentTarget.style.background = '#ffffff';
+                          e.currentTarget.style.borderColor = '#ccfbf1';
                         }}
                       >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontWeight: 700, fontSize: '0.88rem', color: '#0f172a' }}>
-                            {item.symptom}
-                          </span>
-                          <span style={{ color: '#0d9488', fontSize: '0.8rem', fontWeight: 600 }}>Explore →</span>
-                        </div>
-                        <p style={{ margin: '0.2rem 0 0', fontSize: '0.78rem', color: '#64748b' }}>
-                          {item.tagline}
-                        </p>
-                      </div>
+                        {sug}
+                      </button>
                     ))}
                   </div>
                 )}
+              </div>
+            ))}
 
-                {/* Symptom Detail View */}
-                {view === 'symptom-detail' && activeSymptom && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                    <div style={{ background: '#f0fdfa', border: '1px solid #99f6e4', borderRadius: '14px', padding: '0.9rem' }}>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0d9488', textTransform: 'uppercase' }}>
-                        Recommended Clinical Treatment
-                      </span>
-                      <h4 style={{ margin: '0.25rem 0 0.4rem', fontSize: '1rem', color: '#0f766e' }}>
-                        {activeSymptom.recommendedService}
-                      </h4>
-                      <p style={{ margin: 0, fontSize: '0.82rem', color: '#334155', lineHeight: '1.4' }}>
-                        {activeSymptom.description}
-                      </p>
-                    </div>
-
-                    <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '0.85rem' }}>
-                      <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a', display: 'block', marginBottom: '0.4rem' }}>
-                        How Dr. Albert Helps:
-                      </span>
-                      <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.8rem', color: '#475569', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                        {activeSymptom.howWeHelp.map((point, idx) => (
-                          <li key={idx}>{point}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <Link
-                      href={activeSymptom.bookingAnchor}
-                      onClick={handleClose}
-                      style={{
-                        background: '#0d9488',
-                        color: '#fff',
-                        textAlign: 'center',
-                        padding: '0.75rem',
-                        borderRadius: '12px',
-                        fontWeight: 600,
-                        fontSize: '0.88rem',
-                        textDecoration: 'none',
-                      }}
-                    >
-                      Book Your {activeSymptom.recommendedService} Visit →
-                    </Link>
-                  </div>
-                )}
-
-                {/* Pricing & Insurance View */}
-                {view === 'pricing' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '1rem' }}>
-                      <h4 style={{ margin: '0 0 0.5rem', fontSize: '0.92rem', color: '#0f172a' }}>
-                        Transparent Clinic Pricing
-                      </h4>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.4rem 0', borderBottom: '1px solid #e2e8f0', fontSize: '0.84rem' }}>
-                        <span style={{ color: '#475569' }}>Comprehensive Consultation & Therapy</span>
-                        <strong style={{ color: '#0f766e' }}>300 GHS</strong>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.4rem 0', borderBottom: '1px solid #e2e8f0', fontSize: '0.84rem' }}>
-                        <span style={{ color: '#475569' }}>Online Booking Deposit (30%)</span>
-                        <strong style={{ color: '#0d9488' }}>90 GHS</strong>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.4rem 0', fontSize: '0.84rem' }}>
-                        <span style={{ color: '#475569' }}>Balance Settled at Clinic</span>
-                        <strong style={{ color: '#1e293b' }}>210 GHS</strong>
-                      </div>
-                    </div>
-
-                    <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '0.85rem', fontSize: '0.82rem', color: '#475569', lineHeight: '1.4' }}>
-                      <strong style={{ color: '#0f172a', display: 'block', marginBottom: '0.25rem' }}>🛡️ Health Insurance Coverage</strong>
-                      We welcome both private self-pay patients and major corporate/private health insurance providers. Bring your valid membership card or policy slip for easy processing.
-                    </div>
-
-                    <Link
-                      href="/book"
-                      onClick={handleClose}
-                      style={{
-                        background: '#0d9488',
-                        color: '#fff',
-                        textAlign: 'center',
-                        padding: '0.7rem',
-                        borderRadius: '12px',
-                        fontWeight: 600,
-                        fontSize: '0.85rem',
-                        textDecoration: 'none',
-                      }}
-                    >
-                      Proceed to Book Slot (90 GHS Deposit) →
-                    </Link>
-                  </div>
-                )}
-
-                {/* Hours & Location View */}
-                {view === 'hours' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '0.9rem' }}>
-                      <h4 style={{ margin: '0 0 0.5rem', fontSize: '0.92rem', color: '#0f172a' }}>
-                        ⏰ Clinic Opening Hours
-                      </h4>
-                      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.82rem' }}>
-                        <li style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.25rem' }}>
-                          <span style={{ color: '#475569' }}>Monday – Thursday</span>
-                          <strong style={{ color: '#0f172a' }}>08:00 – 18:00</strong>
-                        </li>
-                        <li style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.25rem' }}>
-                          <span style={{ color: '#475569' }}>Friday</span>
-                          <strong style={{ color: '#0f172a' }}>08:00 – 15:00</strong>
-                        </li>
-                        <li style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span style={{ color: '#94a3b8' }}>Saturday – Sunday</span>
-                          <span style={{ color: '#ef4444', fontWeight: 600 }}>Closed</span>
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '0.85rem' }}>
-                      <h4 style={{ margin: '0 0 0.25rem', fontSize: '0.88rem', color: '#0f172a' }}>
-                        📍 Pokuasi Clinic
-                      </h4>
-                      <p style={{ margin: 0, fontSize: '0.82rem', color: '#475569', lineHeight: '1.4' }}>
-                        Pokuasi, Accra, Ghana.<br />
-                        Convenient accessibility with secure on-site patient parking.
-                      </p>
-                    </div>
-
-                    <a
-                      href="https://maps.google.com/?q=Pokuasi,+Accra,+Ghana"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        background: '#0f172a',
-                        color: '#fff',
-                        textAlign: 'center',
-                        padding: '0.65rem',
-                        borderRadius: '12px',
-                        fontWeight: 600,
-                        fontSize: '0.82rem',
-                        textDecoration: 'none',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.4rem',
-                      }}
-                    >
-                      <span>🗺️</span> Open Location in Google Maps
-                    </a>
-                  </div>
-                )}
-
-                {/* FAQs View */}
-                {view === 'faqs' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-                    {FAQS.map(item => (
-                      <div
-                        key={item.id}
-                        style={{
-                          background: '#fff',
-                          border: '1px solid #e2e8f0',
-                          borderRadius: '12px',
-                          padding: '0.8rem',
-                        }}
-                      >
-                        <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#0f172a', marginBottom: '0.3rem' }}>
-                          {item.question}
-                        </div>
-                        <div style={{ fontSize: '0.8rem', color: '#475569', lineHeight: '1.4' }}>
-                          {item.answer}
-                        </div>
-                        {item.actionHref && item.actionText && (
-                          <Link
-                            href={item.actionHref}
-                            onClick={handleClose}
-                            style={{
-                              display: 'inline-block',
-                              marginTop: '0.4rem',
-                              fontSize: '0.78rem',
-                              color: '#0d9488',
-                              fontWeight: 600,
-                              textDecoration: 'none',
-                            }}
-                          >
-                            {item.actionText} →
-                          </Link>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Direct Contact View */}
-                {view === 'contact' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    <div style={{ background: '#f0fdfa', border: '1px solid #99f6e4', borderRadius: '12px', padding: '0.85rem' }}>
-                      <strong style={{ fontSize: '0.88rem', color: '#0f766e', display: 'block', marginBottom: '0.25rem' }}>
-                        Direct Human Support
-                      </strong>
-                      <p style={{ margin: 0, fontSize: '0.8rem', color: '#334155' }}>
-                        Need immediate assistance with a booking or customized therapy inquiry? Reach Dr. Albert or our reception directly through your preferred channel:
-                      </p>
-                    </div>
-
-                    <a
-                      href="https://wa.me/49123456789?text=Hello%20Albert%20Physio,%20I%20have%20a%20question%20about%20your%20services"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        background: '#25D366',
-                        color: '#fff',
-                        padding: '0.75rem',
-                        borderRadius: '12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.5rem',
-                        textDecoration: 'none',
-                        fontWeight: 600,
-                        fontSize: '0.88rem',
-                        boxShadow: '0 4px 12px rgba(37, 211, 102, 0.25)',
-                      }}
-                    >
-                      <span>💬</span> Chat on WhatsApp (+49 123 456 789)
-                    </a>
-
-                    <a
-                      href="tel:+49123456789"
-                      style={{
-                        background: '#0d9488',
-                        color: '#fff',
-                        padding: '0.75rem',
-                        borderRadius: '12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.5rem',
-                        textDecoration: 'none',
-                        fontWeight: 600,
-                        fontSize: '0.88rem',
-                      }}
-                    >
-                      <span>📞</span> Call Clinic Reception
-                    </a>
-
-                    <a
-                      href="mailto:info@albert-physio.de?subject=Physiotherapy%20Appointment%20Inquiry"
-                      style={{
-                        background: '#f8fafc',
-                        border: '1px solid #cbd5e1',
-                        color: '#334155',
-                        padding: '0.75rem',
-                        borderRadius: '12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.5rem',
-                        textDecoration: 'none',
-                        fontWeight: 600,
-                        fontSize: '0.88rem',
-                      }}
-                    >
-                      <span>✉️</span> Email info@albert-physio.de
-                    </a>
-                  </div>
-                )}
-              </>
+            {/* Typing Indicator */}
+            {isTyping && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 0.75rem', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '14px', width: 'fit-content' }}>
+                <span style={{ width: '6px', height: '6px', background: '#0d9488', borderRadius: '50%', animation: 'pulse 1s infinite alternate' }} />
+                <span style={{ width: '6px', height: '6px', background: '#0d9488', borderRadius: '50%', animation: 'pulse 1s infinite alternate 0.2s' }} />
+                <span style={{ width: '6px', height: '6px', background: '#0d9488', borderRadius: '50%', animation: 'pulse 1s infinite alternate 0.4s' }} />
+                <span style={{ fontSize: '0.75rem', color: '#64748b', marginLeft: '0.3rem' }}>Assistant is typing...</span>
+              </div>
             )}
+
+            <div ref={messagesEndRef} />
           </div>
 
-          {/* Footer Bar */}
+          {/* Input Bar */}
           <div
             style={{
-              padding: '0.65rem 1rem',
-              background: '#f8fafc',
+              padding: '0.75rem 1rem',
+              background: '#ffffff',
               borderTop: '1px solid #e2e8f0',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between',
-              fontSize: '0.72rem',
-              color: '#64748b',
+              gap: '0.5rem',
             }}
           >
-            <span>Albert Physio & Wellness • Pokuasi</span>
-            <Link
-              href="/dashboard"
-              onClick={handleClose}
-              style={{ color: '#0d9488', textDecoration: 'none', fontWeight: 600 }}
+            <input
+              type="text"
+              placeholder="Ask about your pain, fees, hours, booking..."
+              value={inputText}
+              onChange={e => setInputText(e.target.value)}
+              onKeyDown={handleKeyPress}
+              style={{
+                flex: 1,
+                padding: '0.7rem 0.95rem',
+                fontSize: '0.88rem',
+                borderRadius: '14px',
+                border: '1px solid #cbd5e1',
+                outline: 'none',
+                background: '#f8fafc',
+                color: '#1e293b',
+              }}
+            />
+            <button
+              onClick={() => handleSendMessage()}
+              disabled={!inputText.trim()}
+              aria-label="Send message"
+              style={{
+                background: inputText.trim() ? '#0d9488' : '#e2e8f0',
+                color: inputText.trim() ? '#ffffff' : '#94a3b8',
+                border: 'none',
+                borderRadius: '12px',
+                width: '40px',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: inputText.trim() ? 'pointer' : 'default',
+                fontSize: '1.1rem',
+                transition: 'background 0.2s ease',
+              }}
             >
-              Patient Portal →
-            </Link>
+              ➤
+            </button>
           </div>
         </div>
       )}
@@ -992,16 +770,48 @@ export default function ClinicConcierge() {
   );
 }
 
-const cardButtonStyle: React.CSSProperties = {
-  background: '#ffffff',
-  border: '1px solid #e2e8f0',
-  borderRadius: '12px',
-  padding: '0.75rem 0.65rem',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'flex-start',
-  gap: '0.4rem',
-  cursor: 'pointer',
-  textAlign: 'left',
-  transition: 'transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease',
-};
+function getActionButtonStyle(type?: 'primary' | 'whatsapp' | 'secondary' | 'map'): React.CSSProperties {
+  const base: React.CSSProperties = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.45rem',
+    padding: '0.55rem 0.95rem',
+    borderRadius: '10px',
+    fontSize: '0.82rem',
+    fontWeight: 600,
+    textDecoration: 'none',
+    boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
+    transition: 'transform 0.15s ease',
+  };
+
+  if (type === 'whatsapp') {
+    return {
+      ...base,
+      background: '#25D366',
+      color: '#ffffff',
+    };
+  }
+
+  if (type === 'secondary') {
+    return {
+      ...base,
+      background: '#0f172a',
+      color: '#ffffff',
+    };
+  }
+
+  if (type === 'map') {
+    return {
+      ...base,
+      background: '#0284c7',
+      color: '#ffffff',
+    };
+  }
+
+  // default primary
+  return {
+    ...base,
+    background: '#0d9488',
+    color: '#ffffff',
+  };
+}
