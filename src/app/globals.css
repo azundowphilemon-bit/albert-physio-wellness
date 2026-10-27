@@ -19,6 +19,12 @@
   padding: 0;
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: 'Inter', sans-serif;
   background: linear-gradient(135deg, #ccfbf1 0%, #f0fdfa 100%);
@@ -26,6 +32,12 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+.landing-page {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 h1, h2, h3, h4, .progress-step {
@@ -516,14 +528,38 @@ footer {
   text-decoration: none;
   display: inline-block;
   white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+/* ── Nav Link ── */
+.nav-link {
+  color: var(--secondary-color);
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+.nav-link:hover {
+  color: var(--primary-color);
+  background: rgba(13, 148, 136, 0.08);
+}
+.nav-link.active-link,
+.nav-link.nav-highlight {
+  color: var(--primary-color);
+  font-weight: 700;
+  background: rgba(13, 148, 136, 0.12);
 }
 
 @media (max-width: 1080px) {
   .navbar .container,
   .nav-container {
     flex-wrap: wrap;
-    gap: 0.6rem;
-    padding: 0.5rem 0.9rem;
+    gap: 0.5rem;
+    padding: 0.5rem 0.85rem;
   }
   .logo-section {
     order: 1;
@@ -535,51 +571,79 @@ footer {
   .nav-actions {
     order: 2;
     width: 100%;
+    max-width: 100%;
     justify-content: center;
     flex-wrap: wrap;
     padding-top: 0.45rem;
     border-top: 1px solid rgba(226, 232, 240, 0.7);
-    gap: 0.6rem;
+    gap: 0.45rem 0.55rem;
+  }
+  .nav-actions .btn,
+  .nav-actions .sm-btn {
+    flex: 0 0 auto;
   }
   .nav-center {
     order: 3;
     width: 100%;
+    max-width: 100%;
     justify-content: center;
     flex-wrap: wrap;
     padding-top: 0.45rem;
     border-top: 1px solid rgba(226, 232, 240, 0.7);
-    gap: 0.5rem 1rem;
+    gap: 0.35rem 0.65rem;
+    margin: 0;
   }
 }
 
 @media (max-width: 600px) {
+  .navbar .container,
+  .nav-container {
+    padding: 0.45rem 0.55rem;
+    gap: 0.4rem;
+  }
   .brand-subtext {
     display: none;
   }
+  .brand-text {
+    font-size: 1.1rem !important;
+  }
   .logo-sm {
-    width: 40px !important;
-    height: 40px !important;
+    width: 36px !important;
+    height: 36px !important;
   }
-  .sm-btn {
-    padding: 0.45rem 0.85rem;
-    font-size: 0.82rem;
+  .nav-actions {
+    gap: 0.35rem 0.4rem;
+    padding-top: 0.4rem;
   }
-  .nav-link {
-    font-size: 0.86rem;
-    padding: 0.3rem 0.55rem;
+  .nav-center {
+    gap: 0.25rem 0.3rem;
+    padding-top: 0.4rem;
+  }
+  .sm-btn,
+  .nav-actions .btn.sm-btn {
+    padding: 0.38rem 0.68rem;
+    font-size: 0.78rem;
+    flex: 0 0 auto;
+  }
+  .nav-link,
+  .nav-center .nav-link,
+  .nav-actions .nav-link {
+    font-size: 0.78rem;
+    padding: 0.28rem 0.46rem;
   }
   .lang-btn {
-    padding: 0.26rem 0.46rem !important;
-    font-size: 0.72rem !important;
+    padding: 0.24rem 0.42rem !important;
+    font-size: 0.7rem !important;
   }
 }
 
 /* Landing Page Hero */
 .hero-content h1 {
-  font-size: 3.5rem;
+  font-size: clamp(2.1rem, 6vw, 3.5rem);
   margin-bottom: 1.5rem;
   color: var(--secondary-color);
   font-family: 'Outfit', sans-serif;
+  overflow-wrap: break-word;
 }
 
 .hero-subtext {
@@ -1185,7 +1249,8 @@ footer {
 .hero-stats {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1.25rem;
   margin-top: 2.5rem;
   padding-top: 2rem;
   border-top: 1px solid #e2e8f0;
@@ -1198,7 +1263,7 @@ footer {
 
 .stat-num {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.75rem;
+  font-size: clamp(1.35rem, 4.5vw, 1.75rem);
   font-weight: 700;
   color: var(--secondary-color);
   line-height: 1;
@@ -1214,28 +1279,6 @@ footer {
   width: 1px;
   height: 40px;
   background: #e2e8f0;
-}
-
-/* ── Nav Link ── */
-.nav-link {
-  color: var(--secondary-color);
-  font-weight: 600;
-  text-decoration: none;
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
-  padding: 0.4rem 0.75rem;
-  border-radius: 8px;
-  white-space: nowrap;
-}
-.nav-link:hover {
-  color: var(--primary-color);
-  background: rgba(13, 148, 136, 0.08);
-}
-.nav-link.active-link,
-.nav-link.nav-highlight {
-  color: var(--primary-color);
-  font-weight: 700;
-  background: rgba(13, 148, 136, 0.12);
 }
 
 /* ── Why Section ── */
