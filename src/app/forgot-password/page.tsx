@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useLanguage } from '@/lib/i18n';
 
 export default function ForgotPasswordPage() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -49,14 +51,14 @@ export default function ForgotPasswordPage() {
         </div>
 
         <span style={{ display: 'inline-block', background: 'rgba(255,255,255,0.15)', color: '#fff', padding: '0.35rem 0.85rem', borderRadius: '50px', fontSize: '0.85rem', fontWeight: 600, width: 'fit-content', marginBottom: '1rem' }}>
-          Account Security & Recovery
+          {t.auth.forgotBadge}
         </span>
 
         <h1 style={{ fontSize: 'clamp(2.2rem, 4vw, 3.2rem)', marginBottom: '1rem', color: '#fff', fontWeight: 800, lineHeight: 1.15 }}>
-          Recover Your Password
+          {t.auth.forgotHeroTitle}
         </h1>
         <p style={{ fontSize: '1.1rem', color: '#e2e8f0', marginBottom: '2.5rem', lineHeight: 1.6, maxWidth: '520px' }}>
-          Enter the email address registered with your ACOOR patient profile. We will send you an authenticated, secure link to choose a new password.
+          {t.auth.forgotHeroSub}
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', maxWidth: '480px' }}>
@@ -64,21 +66,21 @@ export default function ForgotPasswordPage() {
             <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>
               1
             </div>
-            <span style={{ fontSize: '0.95rem' }}>Enter your registered email address</span>
+            <span style={{ fontSize: '0.95rem' }}>{t.auth.forgotStep1}</span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#fff' }}>
             <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>
               2
             </div>
-            <span style={{ fontSize: '0.95rem' }}>Check your inbox for the one-click reset link</span>
+            <span style={{ fontSize: '0.95rem' }}>{t.auth.forgotStep2}</span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#fff' }}>
             <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>
               3
             </div>
-            <span style={{ fontSize: '0.95rem' }}>Create a new password and log straight in</span>
+            <span style={{ fontSize: '0.95rem' }}>{t.auth.forgotStep3}</span>
           </div>
         </div>
       </div>
@@ -89,10 +91,10 @@ export default function ForgotPasswordPage() {
           
           <div style={{ marginBottom: '1.75rem' }}>
             <h2 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--secondary-color)', marginBottom: '0.5rem' }}>
-              Forgot Password?
+              {t.auth.forgotFormTitle}
             </h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem' }}>
-              No worries! It happens. We will help you regain access in a few moments.
+              {t.auth.forgotFormSub}
             </p>
           </div>
           
@@ -110,15 +112,15 @@ export default function ForgotPasswordPage() {
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                     <polyline points="22 4 12 14.01 9 11.01" />
                   </svg>
-                  <strong style={{ fontSize: '1rem', color: '#065f46' }}>Reset link dispatched!</strong>
+                  <strong style={{ fontSize: '1rem', color: '#065f46' }}>{t.auth.resetDispatched}</strong>
                 </div>
                 <p style={{ fontSize: '0.92rem', color: '#047857', margin: 0, lineHeight: 1.5 }}>
-                  We sent a secure password reset link to <strong>{email}</strong>. Please check your inbox and tap the link to set your new password.
+                  {t.auth.resetDispatchedSub} <strong>{email}</strong>.
                 </p>
               </div>
 
               <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '0.9rem 1rem', fontSize: '0.85rem', color: '#64748b' }}>
-                💡 <strong>Did not see the email?</strong> Please check your <em>Spam or Junk</em> folder. Password reset links expire after 1 hour for security.
+                💡 {t.auth.didNotSeeEmail}
               </div>
 
               <button
@@ -127,7 +129,7 @@ export default function ForgotPasswordPage() {
                 className="btn outline"
                 style={{ width: '100%', padding: '0.75rem', textAlign: 'center' }}
               >
-                Send to a different email
+                {t.auth.sendDifferentEmail}
               </button>
 
               <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
@@ -137,7 +139,7 @@ export default function ForgotPasswordPage() {
                   rel="noopener noreferrer"
                   style={{ fontSize: '0.85rem', color: '#0d9488', textDecoration: 'none', fontWeight: 600 }}
                 >
-                  💬 Need help? Chat with ACOOR Desk on WhatsApp
+                  {t.auth.needHelpWhatsapp}
                 </a>
               </div>
             </div>
@@ -145,7 +147,7 @@ export default function ForgotPasswordPage() {
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
               <div className="form-group">
                 <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: 'var(--secondary-color)', marginBottom: '0.4rem' }}>
-                  Registered Email Address
+                  {t.auth.registeredEmailLabel}
                 </label>
                 <input
                   type="email"
@@ -182,24 +184,17 @@ export default function ForgotPasswordPage() {
                   marginTop: '0.5rem',
                 }}
               >
-                {loading ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    Sending Reset Link...
-                  </>
-                ) : (
-                  'Send Reset Link →'
-                )}
+                {loading ? t.auth.sendingResetLink : t.auth.sendResetLinkBtn}
               </button>
             </form>
           )}
 
           <div style={{ marginTop: '2rem', paddingTop: '1.25rem', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem' }}>
             <Link href="/login" style={{ color: 'var(--primary-color)', fontWeight: 600, textDecoration: 'none' }}>
-              ← Back to Login
+              {t.auth.backToLogin}
             </Link>
             <Link href="/register" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>
-              Create Account
+              {t.auth.createAccount}
             </Link>
           </div>
         </div>

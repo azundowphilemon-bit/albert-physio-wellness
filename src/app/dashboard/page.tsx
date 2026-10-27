@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/i18n';
+import { LanguageSwitcher } from '../LanguageSwitcher';
 
 interface Appointment {
   timestamp: string;
@@ -28,6 +30,7 @@ const format12Hour = (time24: string) => {
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { lang, t } = useLanguage();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -104,9 +107,8 @@ export default function DashboardPage() {
     if (error) {
       setProfileMsg({ type: 'error', text: error.message });
     } else {
-      setProfileMsg({ type: 'success', text: 'Profile updated successfully.' });
+      setProfileMsg({ type: 'success', text: t.dashboard.profileUpdated });
       setProfileEdit(false);
-      // Refresh user
       const { data: { session } } = await supabase.auth.getSession();
       if (session) setUser(session.user);
     }
@@ -135,7 +137,6 @@ export default function DashboardPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to cancel');
-      // Refresh appointments
       fetchAppointments(user.email);
     } catch (err: any) {
       alert(err.message);
@@ -162,8 +163,8 @@ export default function DashboardPage() {
       const booked: string[] = data.bookedSlots || [];
       const slots = [];
       for (let i = 8; i <= 17; i++) {
-        const t = `${i.toString().padStart(2, '0')}:00`;
-        slots.push({ time: t, booked: booked.includes(t) });
+        const tSlot = `${i.toString().padStart(2, '0')}:00`;
+        slots.push({ time: tSlot, booked: booked.includes(tSlot) });
       }
       setRescheduleSlots(slots);
     } catch { setRescheduleSlots([]); }
@@ -205,7 +206,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '1.2rem', color: '#0f766e' }}>
-        Loading secure portal...
+        {t.dashboard.loadingPortal}
       </div>
     );
   }
@@ -214,6 +215,7 @@ export default function DashboardPage() {
   const today = new Date().toISOString().split('T')[0];
   const upcoming = appointments.filter(a => a.appointmentDate >= today && a.status !== 'Cancelled');
   const past = appointments.filter(a => a.appointmentDate < today || a.status === 'Cancelled');
+  const localeMap = { en: 'en-GB', de: 'de-DE', fr: 'fr-FR' } as const;
 
   return (
     <div className="landing-page" style={{ minHeight: '100vh', backgroundColor: '#f8fafc' }}>
@@ -221,39 +223,48 @@ export default function DashboardPage() {
       <header className="navbar" style={{ background: '#fff', borderBottom: '1px solid #e2e8f0' }}>
         <div className="container nav-container">
           <div className="logo-section">
-            <span className="brand-text">Patient Portal</span>
+            <span className="brand-text">{t.common.patientPortal}</span>
           </div>
           <div className="nav-actions">
-            <button onClick={handleLogout} className="btn outline sm-btn">Logout</button>
+            <LanguageSwitcher />
+            <button onClick={handleLogout} className="btn outline sm-btn">{t.common.logout}</button>
           </div>
         </div>
       </header>
 
       <main className="container fade-in" style={{ padding: '3rem 1rem' }}>
-        <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem', color: '#0f172a' }}>Hello, {firstName}! 👋</h1>
-        <p style={{ color: '#64748b', marginBottom: '3rem' }}>Welcome to your secure patient dashboard.</p>
+        <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem', color: '#0f172a' }}>{t.dashboard.hello}, {firstName}! 👋</h1>
+        <p style={{ color: '#64748b', marginBottom: '3rem' }}>{t.dashboard.welcomeSub}</p>
 
         <div className="services-grid" style={{ marginBottom: '3rem' }}>
 
           {/* Book CTA */}
           <div className="glass-card p-8" style={{ borderTop: '4px solid #0f766e', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-            <h2 style={{ marginBottom: '1rem', color: '#0f172a' }}>Ready for your next visit?</h2>
-            <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>Book an appointment instantly through the portal.</p>
-            <Link href="/book" className="btn primary full-w">Book Appointment Now</Link>
+            <h2 style={{ marginBottom: '1rem', color: '#0f172a' }}>{t.dashboard.readyNextVisit}</h2>
+            <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>{t.dashboard.readyNextVisitSub}</p>
+            <Link href="/book" className="btn primary full-w">{t.dashboard.bookNowBtn}</Link>
           </div>
 
           {/* Upcoming */}
           <div className="glass-card p-8" style={{ borderTop: '4px solid #0f766e' }}>
-            <h2 style={{ marginBottom: '1rem', color: '#0f172a' }}>Upcoming Appointments</h2>
+            <h2 style={{ marginBottom: '1rem', color: '#0f172a' }}>{t.dashboard.upcomingTitle}</h2>
             {apptLoading ? (
-              <p style={{ color: '#64748b' }}>Loading...</p>
+              <p style={{ color: '#64748b' }}>{t.common.loading}</p>
             ) : upcoming.length === 0 ? (
-              <p style={{ color: '#64748b' }}>No upcoming appointments.</p>
+              <p style={{ color: '#64748b' }}>{t.dashboard.noUpcoming}</p>
             ) : (
               upcoming.map((appt, i) => (
                 <AppointmentCard
                   key={i}
                   appt={appt}
+                  locale={localeMap[lang]}
+                  labels={{
+                    at: t.book.at,
+                    cancelled: t.dashboard.cancelledBadge,
+                    cancel: t.common.cancel,
+                    cancelling: t.dashboard.cancelling,
+                    reschedule: t.dashboard.rescheduleBtn,
+                  }}
                   onCancel={() => handleCancel(appt)}
                   onReschedule={() => handleRescheduleOpen(appt)}
                   cancelling={cancellingKey === `${appt.appointmentDate}-${appt.appointmentTime}`}
@@ -266,15 +277,27 @@ export default function DashboardPage() {
 
         {/* Past Appointments */}
         <div className="glass-card p-8" style={{ borderTop: '4px solid #cbd5e1' }}>
-          <h2 style={{ marginBottom: '1rem', color: '#0f172a' }}>Past Appointments</h2>
+          <h2 style={{ marginBottom: '1rem', color: '#0f172a' }}>{t.dashboard.pastTitle}</h2>
           {apptLoading ? (
-            <p style={{ color: '#64748b' }}>Loading...</p>
+            <p style={{ color: '#64748b' }}>{t.common.loading}</p>
           ) : past.length === 0 ? (
-            <p style={{ color: '#64748b' }}>No past appointments on record.</p>
+            <p style={{ color: '#64748b' }}>{t.dashboard.noPast}</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {past.map((appt, i) => (
-                <AppointmentCard key={i} appt={appt} faded />
+                <AppointmentCard
+                  key={i}
+                  appt={appt}
+                  locale={localeMap[lang]}
+                  labels={{
+                    at: t.book.at,
+                    cancelled: t.dashboard.cancelledBadge,
+                    cancel: t.common.cancel,
+                    cancelling: t.dashboard.cancelling,
+                    reschedule: t.dashboard.rescheduleBtn,
+                  }}
+                  faded
+                />
               ))}
             </div>
           )}
@@ -283,10 +306,10 @@ export default function DashboardPage() {
         {/* Profile */}
         <div className="glass-card p-8" style={{ borderTop: '4px solid #0f766e', marginTop: '2rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <h2 style={{ color: '#0f172a' }}>My Profile</h2>
+            <h2 style={{ color: '#0f172a' }}>{t.dashboard.myProfile}</h2>
             {!profileEdit && (
               <button onClick={() => { setProfileEdit(true); setProfileMsg(null); }} className="btn outline sm-btn">
-                Edit
+                {t.common.edit}
               </button>
             )}
           </div>
@@ -302,12 +325,12 @@ export default function DashboardPage() {
           {!profileEdit ? (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               {[
-                { label: 'First Name', value: profileData.firstName },
-                { label: 'Last Name', value: profileData.lastName },
-                { label: 'Phone', value: profileData.phone },
-                { label: 'Email', value: user?.email },
-                { label: 'Address', value: profileData.address || '—' },
-                { label: 'City', value: profileData.city || '—' },
+                { label: t.dashboard.firstName, value: profileData.firstName },
+                { label: t.dashboard.lastName, value: profileData.lastName },
+                { label: t.dashboard.phone, value: profileData.phone },
+                { label: t.dashboard.email, value: user?.email },
+                { label: t.dashboard.address, value: profileData.address || '—' },
+                { label: t.dashboard.city, value: profileData.city || '—' },
               ].map(({ label, value }) => (
                 <div key={label}>
                   <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.25rem' }}>{label}</p>
@@ -319,34 +342,34 @@ export default function DashboardPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div className="form-row">
                 <div className="form-group">
-                  <label>First Name</label>
+                  <label>{t.dashboard.firstName}</label>
                   <input type="text" value={profileData.firstName} onChange={e => setProfileData({ ...profileData, firstName: e.target.value })} />
                 </div>
                 <div className="form-group">
-                  <label>Last Name</label>
+                  <label>{t.dashboard.lastName}</label>
                   <input type="text" value={profileData.lastName} onChange={e => setProfileData({ ...profileData, lastName: e.target.value })} />
                 </div>
               </div>
               <div className="form-group">
-                <label>Phone Number</label>
+                <label>{t.dashboard.phone}</label>
                 <input type="tel" value={profileData.phone} onChange={e => setProfileData({ ...profileData, phone: e.target.value })} />
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Address</label>
+                  <label>{t.dashboard.address}</label>
                   <input type="text" value={profileData.address} onChange={e => setProfileData({ ...profileData, address: e.target.value })} />
                 </div>
                 <div className="form-group">
-                  <label>City</label>
+                  <label>{t.dashboard.city}</label>
                   <input type="text" value={profileData.city} onChange={e => setProfileData({ ...profileData, city: e.target.value })} />
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
                 <button onClick={handleProfileSave} disabled={profileSaving} className="btn primary sm-btn">
-                  {profileSaving ? 'Saving...' : 'Save Changes'}
+                  {profileSaving ? t.common.saving : t.common.save}
                 </button>
                 <button onClick={() => { setProfileEdit(false); setProfileMsg(null); }} className="btn outline sm-btn">
-                  Cancel
+                  {t.common.cancel}
                 </button>
               </div>
             </div>
@@ -357,20 +380,20 @@ export default function DashboardPage() {
         {rescheduling && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
             <div className="glass-card p-8 fade-in" style={{ maxWidth: '480px', width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
-              <h2 style={{ color: '#0f172a', marginBottom: '0.5rem' }}>Reschedule Appointment</h2>
+              <h2 style={{ color: '#0f172a', marginBottom: '0.5rem' }}>{t.dashboard.rescheduleModalTitle}</h2>
               <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                Current: {new Date(rescheduling.appointmentDate + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })} at {format12Hour(rescheduling.appointmentTime)}
+                {t.dashboard.currentLabel} {new Date(rescheduling.appointmentDate + 'T12:00:00').toLocaleDateString(localeMap[lang], { weekday: 'short', day: 'numeric', month: 'short' })} {t.book.at} {format12Hour(rescheduling.appointmentTime)}
               </p>
 
               <div className="form-group">
-                <label>New Date</label>
+                <label>{t.dashboard.newDateLabel}</label>
                 <input type="date" value={newDate} min={new Date().toISOString().split('T')[0]}
                   onChange={e => handleRescheduleDateChange(e.target.value)} />
               </div>
 
               {newDate && (
                 <div className="form-group">
-                  <label>New Time {rescheduleLoading && <span style={{ color: '#0f766e', fontSize: '0.8rem' }}>(Loading...)</span>}</label>
+                  <label>{t.dashboard.newTimeLabel} {rescheduleLoading && <span style={{ color: '#0f766e', fontSize: '0.8rem' }}>({t.common.loading})</span>}</label>
                   <div className="time-slot-grid" style={{ opacity: rescheduleLoading ? 0.5 : 1 }}>
                     {rescheduleSlots.map(slot => (
                       <div key={slot.time}
@@ -386,10 +409,10 @@ export default function DashboardPage() {
               <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
                 <button onClick={handleRescheduleSave} disabled={!newDate || !newTime || rescheduleSaving}
                   className="btn primary" style={{ flex: 1 }}>
-                  {rescheduleSaving ? 'Saving...' : 'Confirm Reschedule'}
+                  {rescheduleSaving ? t.common.saving : t.dashboard.confirmReschedule}
                 </button>
                 <button onClick={() => setRescheduling(null)} className="btn outline" style={{ flex: 1 }}>
-                  Cancel
+                  {t.common.cancel}
                 </button>
               </div>
             </div>
@@ -401,14 +424,16 @@ export default function DashboardPage() {
   );
 }
 
-function AppointmentCard({ appt, faded, onCancel, onReschedule, cancelling }: {
+function AppointmentCard({ appt, locale, labels, faded, onCancel, onReschedule, cancelling }: {
   appt: Appointment;
+  locale: string;
+  labels: { at: string; cancelled: string; cancel: string; cancelling: string; reschedule: string };
   faded?: boolean;
   onCancel?: () => void;
   onReschedule?: () => void;
   cancelling?: boolean;
 }) {
-  const dateLabel = new Date(appt.appointmentDate + 'T12:00:00').toLocaleDateString('en-GB', {
+  const dateLabel = new Date(appt.appointmentDate + 'T12:00:00').toLocaleDateString(locale, {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   });
 
@@ -423,7 +448,7 @@ function AppointmentCard({ appt, faded, onCancel, onReschedule, cancelling }: {
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
         <div>
-          <p style={{ fontWeight: 'bold', color: '#0f172a', marginBottom: '0.25rem' }}>{dateLabel} at {format12Hour(appt.appointmentTime)}</p>
+          <p style={{ fontWeight: 'bold', color: '#0f172a', marginBottom: '0.25rem' }}>{dateLabel} {labels.at} {format12Hour(appt.appointmentTime)}</p>
           <p style={{ color: '#64748b', fontSize: '0.9rem' }}>{appt.appointmentDetails}</p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -435,7 +460,7 @@ function AppointmentCard({ appt, faded, onCancel, onReschedule, cancelling }: {
           </span>
           {appt.status === 'Cancelled' && (
             <span style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem', borderRadius: '999px', background: '#fee2e2', color: '#b91c1c' }}>
-              Cancelled
+              {labels.cancelled}
             </span>
           )}
           {onCancel && appt.status !== 'Cancelled' && (
@@ -443,14 +468,14 @@ function AppointmentCard({ appt, faded, onCancel, onReschedule, cancelling }: {
               style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem', borderRadius: '999px',
                 background: '#fff', border: '1px solid #fca5a5', color: '#dc2626',
                 cursor: cancelling ? 'not-allowed' : 'pointer', opacity: cancelling ? 0.6 : 1 }}>
-              {cancelling ? 'Cancelling...' : 'Cancel'}
+              {cancelling ? labels.cancelling : labels.cancel}
             </button>
           )}
           {onReschedule && appt.status !== 'Cancelled' && (
             <button onClick={onReschedule}
               style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem', borderRadius: '999px',
                 background: '#fff', border: '1px solid #a5b4fc', color: '#4f46e5', cursor: 'pointer' }}>
-              Reschedule
+              {labels.reschedule}
             </button>
           )}
         </div>

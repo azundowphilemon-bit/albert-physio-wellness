@@ -4,9 +4,11 @@ import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/i18n';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({ 
     email: '', password: '', firstName: '', lastName: '', dateOfBirth: '', phone: '', address: '', city: '' 
   });
@@ -21,7 +23,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     // 1. Register with Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.signUp({
+    const { error: authError } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
@@ -54,62 +56,62 @@ export default function RegisterPage() {
   return (
     <div className="layout-2-col" style={{ minHeight: '100vh' }}>
       <div className="left-col bg-pattern p-8" style={{ display: 'flex', flexDirection: 'column', padding: '10%' }}>
-        <h1 style={{ fontSize: '3rem', marginBottom: '1rem', color: '#fff' }}>Patient Portal</h1>
+        <h1 style={{ fontSize: '3rem', marginBottom: '1rem', color: '#fff' }}>{t.auth.registerHeroTitle}</h1>
         <p style={{ fontSize: '1.2rem', color: '#e2e8f0', marginBottom: '2rem' }}>
-          Create an account to manage your appointments, instantly book without re-typing details, and access your clinic documents.
+          {t.auth.registerHeroSub}
         </p>
       </div>
 
       <div className="right-col p-8" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="glass-card fade-in" style={{ maxWidth: '450px', width: '100%', padding: '2rem' }}>
           
-          <h2 style={{ marginBottom: '1.5rem', color: '#0f172a' }}>Register</h2>
+          <h2 style={{ marginBottom: '1.5rem', color: '#0f172a' }}>{t.auth.registerTitle}</h2>
           
           {error && <div style={{ background: '#fee2e2', color: '#b91c1c', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>{error}</div>}
-          {success && <div style={{ background: '#dcfce3', color: '#166534', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>Account created successfully! Redirecting to login...</div>}
+          {success && <div style={{ background: '#dcfce3', color: '#166534', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>{t.auth.accountCreated}</div>}
 
           {!success && (
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div className="form-row">
                 <div className="form-group">
-                  <label>First Name</label>
+                  <label>{t.auth.firstName}</label>
                   <input type="text" required value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})} />
                 </div>
                 <div className="form-group">
-                  <label>Last Name</label>
+                  <label>{t.auth.lastName}</label>
                   <input type="text" required value={formData.lastName} onChange={(e) => setFormData({...formData, lastName: e.target.value})} />
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Date of Birth</label>
+                  <label>{t.auth.dob}</label>
                   <input type="date" required value={formData.dateOfBirth} onChange={(e) => setFormData({...formData, dateOfBirth: e.target.value})} />
                 </div>
                 <div className="form-group">
-                  <label>Phone Number</label>
+                  <label>{t.auth.phone}</label>
                   <input type="tel" required value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} placeholder="+49 123 456 789" />
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Address (Street)</label>
+                  <label>{t.auth.addressStreet}</label>
                   <input type="text" value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} placeholder="Musterstraße 1" />
                 </div>
                 <div className="form-group">
-                  <label>City</label>
+                  <label>{t.auth.city}</label>
                   <input type="text" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} placeholder="Berlin" />
                 </div>
               </div>
 
               <div className="form-group">
-                <label>Email Address</label>
+                <label>{t.auth.emailLabel}</label>
                 <input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
               </div>
 
               <div className="form-group">
-                <label>Create Password</label>
+                <label>{t.auth.createPassword}</label>
                 <div style={{ position: 'relative' }}>
                   <input 
                     type={showPassword ? "text" : "password"} 
@@ -134,13 +136,13 @@ export default function RegisterPage() {
               </div>
 
               <button type="submit" className="btn-primary" disabled={loading} style={{ marginTop: '1rem' }}>
-                {loading ? 'Creating Account...' : 'Register'}
+                {loading ? t.auth.creatingAccount : t.auth.registerTitle}
               </button>
             </form>
           )}
           
           <p style={{ marginTop: '1.5rem', textAlign: 'center', color: '#64748b' }}>
-            Already have an account? <Link href="/login" style={{ color: '#0f766e', fontWeight: 'bold' }}>Login here</Link>
+            {t.auth.alreadyHaveAccount} <Link href="/login" style={{ color: '#0f766e', fontWeight: 'bold' }}>{t.auth.loginHere}</Link>
           </p>
         </div>
       </div>

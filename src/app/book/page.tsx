@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/lib/i18n';
 
 const format12Hour = (time24: string) => {
   if (!time24) return '';
@@ -16,6 +17,7 @@ const format12Hour = (time24: string) => {
 
 export default function Home() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -125,7 +127,7 @@ export default function Home() {
 
   const nextStep = () => {
     if (step === 2 && !formData.appointmentTime) {
-      setErrorMessage("Please select an available time slot");
+      setErrorMessage(t.book.selectTimeError);
       return;
     }
     setErrorMessage('');
@@ -200,7 +202,7 @@ export default function Home() {
   if (!authChecked || !isAuthenticated) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#0f766e', fontSize: '1.1rem' }}>
-        Checking session...
+        {t.book.checkingSession}
       </div>
     );
   }
@@ -212,15 +214,15 @@ export default function Home() {
           <div className="logo-container">
             <Image 
               src="/logo.png" 
-              alt="Albert Physio & Wellness Logo" 
+              alt="ACOOR Logo" 
               width={140} 
               height={140} 
               className="logo-img" 
             />
             <div className="title-wrapper">
               <h1>ACOOR</h1>
-              <p style={{ fontWeight: 600, color: 'var(--primary-color)', fontSize: '0.88rem', margin: '-0.2rem 0 0.3rem 0' }}>Africa Clinic of Osteopathy & Rehabilitation</p>
-              <p>Book your appointment online easily and securely.</p>
+              <p style={{ fontWeight: 600, color: 'var(--primary-color)', fontSize: '0.88rem', margin: '-0.2rem 0 0.3rem 0' }}>{t.common.brandSubtitleFull}</p>
+              <p>{t.book.subtitle}</p>
             </div>
           </div>
         </div>
@@ -232,33 +234,33 @@ export default function Home() {
               {paymentStatus === 'paid' ? (
                 <div className="success-state">
                   <div className="success-icon">✓</div>
-                  <h2>All Done!</h2>
-                  <p>Your appointment is confirmed and your deposit of <strong>GHS {DEPOSIT_AMOUNT}</strong> has been received.</p>
+                  <h2>{t.book.allDoneTitle}</h2>
+                  <p>{t.book.allDoneDescPrefix}<strong>GHS {DEPOSIT_AMOUNT}</strong>{t.book.allDoneDescSuffix}</p>
                   <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '1rem', margin: '1rem 0', textAlign: 'left' }}>
-                    <p style={{ fontSize: '0.9rem', color: '#166534', marginBottom: '0.5rem' }}>💳 Deposit paid: <strong>GHS {DEPOSIT_AMOUNT}</strong></p>
-                    <p style={{ fontSize: '0.9rem', color: '#166534' }}>🏥 Balance due on arrival: <strong>GHS {BALANCE_AMOUNT}</strong></p>
+                    <p style={{ fontSize: '0.9rem', color: '#166534', marginBottom: '0.5rem' }}>{t.book.depositPaidLabel} <strong>GHS {DEPOSIT_AMOUNT}</strong></p>
+                    <p style={{ fontSize: '0.9rem', color: '#166534' }}>{t.book.balanceDueLabel} <strong>GHS {BALANCE_AMOUNT}</strong></p>
                   </div>
-                  <button className="btn outline" onClick={() => window.location.reload()}>Book Another</button>
+                  <button className="btn outline" onClick={() => window.location.reload()}>{t.book.bookAnotherBtn}</button>
                 </div>
               ) : (
                 <div>
                   <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
                     <div className="success-icon" style={{ background: '#fef9c3', color: '#854d0e' }}>💳</div>
-                    <h2 style={{ marginBottom: '0.5rem' }}>Booking Received!</h2>
-                    <p style={{ color: '#64748b', fontSize: '0.95rem' }}>Complete your deposit to confirm your appointment slot.</p>
+                    <h2 style={{ marginBottom: '0.5rem' }}>{t.book.bookingReceivedTitle}</h2>
+                    <p style={{ color: '#64748b', fontSize: '0.95rem' }}>{t.book.bookingReceivedSub}</p>
                   </div>
 
                   <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1rem', marginBottom: '1.5rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                      <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Consultation Fee</span>
+                      <span style={{ color: '#64748b', fontSize: '0.9rem' }}>{t.book.consultationFee}</span>
                       <span style={{ fontWeight: 600 }}>GHS {CONSULTATION_FEE}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                      <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Deposit (30%) — Pay now</span>
+                      <span style={{ color: '#64748b', fontSize: '0.9rem' }}>{t.book.depositPayNow}</span>
                       <span style={{ fontWeight: 700, color: '#0f766e' }}>GHS {DEPOSIT_AMOUNT}</span>
                     </div>
                     <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '0.5rem', display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Balance — Pay on arrival</span>
+                      <span style={{ color: '#64748b', fontSize: '0.9rem' }}>{t.book.balancePayArrival}</span>
                       <span style={{ fontWeight: 600 }}>GHS {BALANCE_AMOUNT}</span>
                     </div>
                   </div>
@@ -271,11 +273,11 @@ export default function Home() {
 
                   <form onSubmit={handlePayment} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div className="form-group">
-                      <label>Cardholder Name</label>
+                      <label>{t.book.cardholderName}</label>
                       <input type="text" required placeholder="John Doe" value={cardData.cardName} onChange={e => setCardData({ ...cardData, cardName: e.target.value })} />
                     </div>
                     <div className="form-group">
-                      <label>Card Number</label>
+                      <label>{t.book.cardNumber}</label>
                       <input type="text" required placeholder="1234 5678 9012 3456" maxLength={19}
                         value={cardData.cardNumber}
                         onChange={e => {
@@ -286,7 +288,7 @@ export default function Home() {
                     </div>
                     <div className="form-row">
                       <div className="form-group">
-                        <label>Expiry Date</label>
+                        <label>{t.book.expiryDate}</label>
                         <input type="text" required placeholder="MM/YY" maxLength={5}
                           value={cardData.expiryDate}
                           onChange={e => {
@@ -296,7 +298,7 @@ export default function Home() {
                         />
                       </div>
                       <div className="form-group">
-                        <label>CVV</label>
+                        <label>{t.book.cvv}</label>
                         <input type="password" required placeholder="•••" maxLength={3}
                           value={cardData.cvv}
                           onChange={e => setCardData({ ...cardData, cvv: e.target.value.replace(/\D/g, '').slice(0, 3) })}
@@ -304,10 +306,10 @@ export default function Home() {
                       </div>
                     </div>
                     <div style={{ background: '#fef9c3', border: '1px solid #fde68a', borderRadius: '8px', padding: '0.75rem', fontSize: '0.8rem', color: '#854d0e' }}>
-                      🔒 Test mode — use any card number except 0000 0000 0000 0000 to simulate a successful payment.
+                      {t.book.testModeNotice}
                     </div>
                     <button type="submit" className="btn primary submit" disabled={paymentStatus === 'processing'}>
-                      {paymentStatus === 'processing' ? 'Processing...' : `Pay GHS ${DEPOSIT_AMOUNT} Deposit`}
+                      {paymentStatus === 'processing' ? t.book.processing : t.book.payDepositBtn}
                     </button>
                   </form>
                 </div>
@@ -335,46 +337,46 @@ export default function Home() {
                 {/* Step 1: Reason */}
                 {step === 1 && (
                   <div className="step-content fade-in">
-                    <h3>1. What brings you to us?</h3>
+                    <h3>{t.book.step1Title}</h3>
                     
                     <div className="form-group">
-                      <label htmlFor="patientStatus">Are you a new patient?</label>
+                      <label htmlFor="patientStatus">{t.book.areYouNew}</label>
                       <div className="radio-group">
                         <label className={`radio-card ${formData.patientStatus === 'new' ? 'selected' : ''}`}>
                           <input type="radio" name="patientStatus" value="new" checked={formData.patientStatus === 'new'} onChange={handleChange} />
                           <div>
-                            <strong>Yes</strong>
-                            <span>I am a new patient</span>
+                            <strong>{t.book.yes}</strong>
+                            <span>{t.book.newPatientSub}</span>
                           </div>
                         </label>
                         <label className={`radio-card ${formData.patientStatus === 'returning' ? 'selected' : ''}`}>
                           <input type="radio" name="patientStatus" value="returning" checked={formData.patientStatus === 'returning'} onChange={handleChange} />
                           <div>
-                            <strong>No</strong>
-                            <span>I've been here before</span>
+                            <strong>{t.book.no}</strong>
+                            <span>{t.book.returningPatientSub}</span>
                           </div>
                         </label>
                       </div>
                     </div>
 
                     <div className="form-group">
-                      <label htmlFor="appointmentDetails">Reason for visit</label>
+                      <label htmlFor="appointmentDetails">{t.book.reasonLabel}</label>
                       <textarea 
                         id="appointmentDetails" 
                         name="appointmentDetails" 
                         required 
                         value={formData.appointmentDetails} 
                         onChange={handleChange} 
-                        placeholder="E.g., Back pain, post-surgery rehab..." 
+                        placeholder={t.book.reasonPlaceholder}
                         rows={3}
                       />
                     </div>
 
                     <div className="form-group">
-                      <label htmlFor="insuranceType">Insurance Type</label>
+                      <label htmlFor="insuranceType">{t.book.insuranceLabel}</label>
                       <select id="insuranceType" name="insuranceType" value={formData.insuranceType} onChange={handleChange}>
-                        <option value="public">Public (Gesetzlich)</option>
-                        <option value="private">Private / Self-Pay</option>
+                        <option value="public">{t.book.insurancePublic}</option>
+                        <option value="private">{t.book.insurancePrivate}</option>
                       </select>
                     </div>
                   </div>
@@ -383,10 +385,10 @@ export default function Home() {
                 {/* Step 2: Date */}
                 {step === 2 && (
                   <div className="step-content fade-in">
-                    <h3>2. When would you like to come?</h3>
+                    <h3>{t.book.step2Title}</h3>
                     
                     <div className="form-group">
-                      <label htmlFor="appointmentDate">Select a Date</label>
+                      <label htmlFor="appointmentDate">{t.book.selectDateLabel}</label>
                       <input 
                         type="date" 
                         id="appointmentDate" 
@@ -403,8 +405,8 @@ export default function Home() {
 
                     {formData.appointmentDate ? (
                       <div className="form-group fade-in" style={{ marginTop: '2rem' }}>
-                        <label>Available Times {checkingAvailability && <span style={{ color: '#0f766e', fontSize: '0.85rem', marginLeft: '0.5rem' }}>(Checking calendar...)</span>}</label>
-                        <p className="hint-text">Select one of the available 60-minute slots.</p>
+                        <label>{t.book.availableTimesLabel} {checkingAvailability && <span style={{ color: '#0f766e', fontSize: '0.85rem', marginLeft: '0.5rem' }}>{t.book.checkingCalendar}</span>}</label>
+                        <p className="hint-text">{t.book.slotsHint}</p>
                         <div className="time-slot-grid" style={{ opacity: checkingAvailability ? 0.5 : 1, transition: 'opacity 0.2s ease' }}>
                           {availableTimeSlots.map((slot) => (
                             <div 
@@ -419,7 +421,7 @@ export default function Home() {
                       </div>
                     ) : (
                       <div style={{ marginTop: '2rem', padding: '2rem', textAlign: 'center', background: '#f8fafc', borderRadius: '10px', color: '#64748b' }}>
-                        Please select a date to see available times.
+                        {t.book.selectDatePrompt}
                       </div>
                     )}
                   </div>
@@ -428,40 +430,40 @@ export default function Home() {
                 {/* Step 3: Personal Details */}
                 {step === 3 && (
                   <div className="step-content fade-in">
-                    <h3>3. Your Details</h3>
+                    <h3>{t.book.step3Title}</h3>
                     <div className="form-row">
                       <div className="form-group">
-                        <label htmlFor="firstName">First Name</label>
+                        <label htmlFor="firstName">{t.book.firstName}</label>
                         <input type="text" id="firstName" name="firstName" required value={formData.firstName} onChange={handleChange} placeholder="John" />
                       </div>
                       <div className="form-group">
-                        <label htmlFor="lastName">Last Name</label>
+                        <label htmlFor="lastName">{t.book.lastName}</label>
                         <input type="text" id="lastName" name="lastName" required value={formData.lastName} onChange={handleChange} placeholder="Doe" />
                       </div>
                     </div>
 
                     <div className="form-group">
-                      <label htmlFor="dateOfBirth">Date of Birth</label>
+                      <label htmlFor="dateOfBirth">{t.book.dob}</label>
                       <input type="date" id="dateOfBirth" name="dateOfBirth" required value={formData.dateOfBirth} onChange={handleChange} />
                     </div>
                     
                     <div className="form-group">
-                      <label htmlFor="phone">Phone Number</label>
+                      <label htmlFor="phone">{t.book.phone}</label>
                       <input type="tel" id="phone" name="phone" required value={formData.phone} onChange={handleChange} placeholder="+49 123 456 789" />
                     </div>
 
                     <div className="form-group">
-                      <label htmlFor="email">Email Address</label>
+                      <label htmlFor="email">{t.book.email}</label>
                       <input type="email" id="email" name="email" required value={formData.email} onChange={handleChange} placeholder="john.doe@example.com" />
                     </div>
 
                     <div className="form-row">
                       <div className="form-group">
-                        <label htmlFor="address">Address (Optional)</label>
+                        <label htmlFor="address">{t.book.addressOptional}</label>
                         <input type="text" id="address" name="address" value={formData.address} onChange={handleChange} placeholder="Musterstraße 1" />
                       </div>
                       <div className="form-group">
-                        <label htmlFor="city">City (Optional)</label>
+                        <label htmlFor="city">{t.book.cityOptional}</label>
                         <input type="text" id="city" name="city" value={formData.city} onChange={handleChange} placeholder="Berlin" />
                       </div>
                     </div>
@@ -471,21 +473,21 @@ export default function Home() {
                 {/* Step 4: Review */}
                 {step === 4 && (
                   <div className="step-content fade-in review-step">
-                    <h3>4. Review & Submit</h3>
+                    <h3>{t.book.step4Title}</h3>
                     
                     <div className="review-card">
-                      <h4>Visit Details</h4>
-                      <p><strong>Patient:</strong> {formData.patientStatus === 'new' ? 'New' : 'Returning'} / {formData.insuranceType === 'public' ? 'Public' : 'Private'} Insurance</p>
-                      <p><strong>Reason:</strong> {formData.appointmentDetails}</p>
-                      <p><strong>Preferred Space:</strong> {new Date(formData.appointmentDate).toLocaleDateString()} at {format12Hour(formData.appointmentTime)}</p>
+                      <h4>{t.book.visitDetails}</h4>
+                      <p><strong>{t.book.patientLabel}</strong> {formData.patientStatus === 'new' ? t.book.newStatus : t.book.returningStatus} / {formData.insuranceType === 'public' ? t.book.publicIns : t.book.privateIns}</p>
+                      <p><strong>{t.book.reasonReview}</strong> {formData.appointmentDetails}</p>
+                      <p><strong>{t.book.preferredSlot}</strong> {new Date(formData.appointmentDate).toLocaleDateString()} {t.book.at} {format12Hour(formData.appointmentTime)}</p>
                     </div>
 
                     <div className="review-card">
-                      <h4>Personal Information</h4>
-                      <p><strong>Name:</strong> {formData.firstName} {formData.lastName}</p>
-                      <p><strong>DOB:</strong> {formData.dateOfBirth ? new Date(formData.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
-                      <p><strong>Contact:</strong> {formData.email} / {formData.phone}</p>
-                      {(formData.address || formData.city) && <p><strong>Address:</strong> {formData.address} {formData.city && `, ${formData.city}`}</p>}
+                      <h4>{t.book.personalInfo}</h4>
+                      <p><strong>{t.book.nameReview}</strong> {formData.firstName} {formData.lastName}</p>
+                      <p><strong>{t.book.dobReview}</strong> {formData.dateOfBirth ? new Date(formData.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
+                      <p><strong>{t.book.contactReview}</strong> {formData.email} / {formData.phone}</p>
+                      {(formData.address || formData.city) && <p><strong>{t.book.addressReview}</strong> {formData.address} {formData.city && `, ${formData.city}`}</p>}
                     </div>
                   </div>
                 )}
@@ -493,17 +495,17 @@ export default function Home() {
                 <div className="button-group">
                   {step > 1 && (
                     <button type="button" className="btn outline" onClick={prevStep} disabled={status === 'loading'}>
-                      Back
+                      {t.common.back}
                     </button>
                   )}
                   
                   {step < 4 ? (
                     <button type="submit" className="btn primary">
-                      Continue
+                      {t.common.continue}
                     </button>
                   ) : (
                     <button type="submit" className="btn primary submit" disabled={status === 'loading'}>
-                      {status === 'loading' ? 'Submitting...' : 'Confirm Request'}
+                      {status === 'loading' ? t.book.submitting : t.book.confirmRequest}
                     </button>
                   )}
                 </div>
@@ -517,7 +519,7 @@ export default function Home() {
         <div className="image-wrapper">
           <Image 
             src="/albert-physio.png" 
-            alt="Dr. Albert in clinic" 
+            alt="ACOOR Clinical Director" 
             fill 
             style={{ objectFit: 'cover', objectPosition: 'center top', borderRadius: '24px' }} 
             priority

@@ -4,11 +4,13 @@ import { useState, Suspense } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/i18n';
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') || '/dashboard';
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,7 +27,7 @@ function LoginForm() {
     });
 
     if (authError) {
-      setError("Invalid Email or Password. If you just registered, you may need to confirm your email.");
+      setError(t.auth.invalidCredentials);
       setLoading(false);
       return;
     }
@@ -36,29 +38,29 @@ function LoginForm() {
   return (
     <div className="layout-2-col" style={{ minHeight: '100vh' }}>
       <div className="left-col bg-pattern p-8" style={{ display: 'flex', flexDirection: 'column', padding: '10%' }}>
-        <h1 style={{ fontSize: '3rem', marginBottom: '1rem', color: '#fff' }}>Welcome Back</h1>
+        <h1 style={{ fontSize: '3rem', marginBottom: '1rem', color: '#fff' }}>{t.auth.loginHeroTitle}</h1>
         <p style={{ fontSize: '1.2rem', color: '#e2e8f0', marginBottom: '2rem' }}>
-          Login to manage your upcoming therapy sessions and interact with our AI Assistant!
+          {t.auth.loginHeroSub}
         </p>
       </div>
 
       <div className="right-col p-8" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="glass-card fade-in" style={{ maxWidth: '400px', width: '100%', padding: '2rem' }}>
           
-          <h2 style={{ marginBottom: '1.5rem', color: '#0f172a' }}>Login</h2>
+          <h2 style={{ marginBottom: '1.5rem', color: '#0f172a' }}>{t.auth.loginTitle}</h2>
           
           {error && <div style={{ background: '#fee2e2', color: '#b91c1c', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>{error}</div>}
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div className="form-group">
-              <label>Email Address</label>
+              <label>{t.auth.emailLabel}</label>
               <input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
             </div>
 
             <div className="form-group">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <label>Password</label>
-                <Link href="/forgot-password" style={{ fontSize: '0.85rem', color: '#0f766e', textDecoration: 'none' }}>Forgot password?</Link>
+                <label>{t.auth.passwordLabel}</label>
+                <Link href="/forgot-password" style={{ fontSize: '0.85rem', color: '#0f766e', textDecoration: 'none' }}>{t.auth.forgotPasswordLink}</Link>
               </div>
               <div style={{ position: 'relative' }}>
                 <input 
@@ -84,12 +86,12 @@ function LoginForm() {
             </div>
 
             <button type="submit" className="btn-primary" disabled={loading} style={{ marginTop: '1rem' }}>
-              {loading ? 'Logging in...' : 'Login'}
+              {loading ? t.auth.loggingIn : t.auth.loginTitle}
             </button>
           </form>
           
           <p style={{ marginTop: '1.5rem', textAlign: 'center', color: '#64748b' }}>
-            Don't have an account? <Link href="/register" style={{ color: '#0f766e', fontWeight: 'bold' }}>Register here</Link>
+            {t.auth.noAccount} <Link href="/register" style={{ color: '#0f766e', fontWeight: 'bold' }}>{t.auth.registerHere}</Link>
           </p>
         </div>
       </div>

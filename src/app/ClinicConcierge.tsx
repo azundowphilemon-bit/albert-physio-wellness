@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useLanguage, Language } from '@/lib/i18n';
 
 interface ChatAction {
   label: string;
@@ -20,16 +21,8 @@ interface Message {
   isEmergency?: boolean;
 }
 
-const INITIAL_SUGGESTIONS = [
-  '🏛️ About ACOOR & Faculty',
-  '🩺 What is Osteopathy & 5 Pillars?',
-  '🏥 4 Rehabilitation Departments',
-  '🌐 Global Hospital Advisory',
-  '💰 What are your fees & deposit?',
-  '💬 Chat on WhatsApp'
-];
-
 export default function ClinicConcierge() {
+  const { lang, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -40,11 +33,29 @@ export default function ClinicConcierge() {
     {
       id: 'welcome',
       sender: 'bot',
-      text: 'Hello! 👋 Welcome to **ACOOR (Africa Clinic of Osteopathy and Rehabilitation)**. I am your virtual clinic assistant.\n\nHow can I help you today? You can ask about Osteopathic Medicine, our 4 rehabilitation departments, our German Still Academy faculty background, or tap an option below:',
-      time: 'Just now',
-      suggestions: INITIAL_SUGGESTIONS
-    }
+      text: t.concierge.welcomeText,
+      time: t.concierge.justNow,
+      suggestions: t.concierge.initialSuggestions,
+    },
   ]);
+
+  // Update the initial welcome message automatically when the user changes language if they haven't chatted yet
+  useEffect(() => {
+    setMessages((prev) => {
+      if (prev.length === 1 && prev[0].id === 'welcome') {
+        return [
+          {
+            id: 'welcome',
+            sender: 'bot',
+            text: t.concierge.welcomeText,
+            time: t.concierge.justNow,
+            suggestions: t.concierge.initialSuggestions,
+          },
+        ];
+      }
+      return prev;
+    });
+  }, [lang, t.concierge]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -56,7 +67,7 @@ export default function ClinicConcierge() {
     }
   }, [messages, isOpen, isTyping]);
 
-  const getBotResponse = (userInput: string): Omit<Message, 'id' | 'sender' | 'time'> => {
+  const getBotResponse = (userInput: string, currentLang: Language): Omit<Message, 'id' | 'sender' | 'time'> => {
     const q = userInput.toLowerCase().trim();
 
     // 1. Emergency Red-Flag Triage
@@ -71,19 +82,37 @@ export default function ClinicConcierge() {
       q.includes("can't walk") ||
       q.includes('bleeding') ||
       q.includes('fainted') ||
-      q.includes('groin numbness') ||
-      q.includes('loss of bladder') ||
-      q.includes('emergency')
+      q.includes('emergency') ||
+      q.includes('notfall') ||
+      q.includes('herzinfarkt') ||
+      q.includes('schlaganfall') ||
+      q.includes('atemnot') ||
+      q.includes('urgence') ||
+      q.includes('avc') ||
+      q.includes('cardiaque') ||
+      q.includes('respirer')
     ) {
+      if (currentLang === 'de') {
+        return {
+          text: '⚠️ DRINGENDER MEDIZINISCHER HINWEIS:\n\nBei akuten schweren Traumata, Gefühlsverlust in Gliedmaßen, Brustschmerzen oder plötzlichen neurologischen Ausfällen begeben Sie sich bitte sofort in eine Notaufnahme oder wählen Sie den Notruf.\n\nUnsere ambulante Klinik ist auf nicht-notfallmäßige Rehabilitation spezialisiert.',
+          isEmergency: true,
+          action: { label: 'Notruf wählen (112)', href: 'tel:112', type: 'secondary' },
+          suggestions: ['Welche Behandlungen bieten Sie an?', 'Wo befindet sich die Klinik?'],
+        };
+      }
+      if (currentLang === 'fr') {
+        return {
+          text: '⚠️ AVIS MÉDICAL URGENT :\n\nEn cas de traumatisme aigu grave, de perte de sensibilité d’un membre, de douleur thoracique ou de symptômes neurologiques soudains, veuillez vous rendre immédiatement aux urgences ou appeler les secours.\n\nNotre clinique ambulatoire est dédiée à la rééducation non urgente.',
+          isEmergency: true,
+          action: { label: 'Appeler les Urgences (112)', href: 'tel:112', type: 'secondary' },
+          suggestions: ['Quels soins proposez-vous ?', 'Où se trouve la clinique ?'],
+        };
+      }
       return {
         text: '⚠️ URGENT MEDICAL ADVISORY:\n\nIf you are experiencing severe acute trauma, loss of limb sensation, chest pain, or sudden loss of bowel/bladder control, please proceed immediately to an emergency hospital department or call local emergency services.\n\nOur outpatient physiotherapy clinic is designed for non-emergency musculoskeletal rehabilitation.',
         isEmergency: true,
-        action: {
-          label: 'Call Emergency Hospital',
-          href: 'tel:112',
-          type: 'secondary'
-        },
-        suggestions: ['What non-emergency services do you offer?', 'Where is your clinic located?']
+        action: { label: 'Call Emergency Hospital', href: 'tel:112', type: 'secondary' },
+        suggestions: ['What non-emergency services do you offer?', 'Where is your clinic located?'],
       };
     }
 
@@ -94,15 +123,28 @@ export default function ClinicConcierge() {
       q.includes('change password') ||
       q.includes('cannot login') ||
       q.includes("can't login") ||
-      q.includes('password')
+      q.includes('password') ||
+      q.includes('passwort') ||
+      q.includes('kennwort') ||
+      q.includes('mot de passe')
     ) {
+      if (currentLang === 'de') {
+        return {
+          text: '🔑 **Passwort zurücksetzen & Kontowiederherstellung:**\n\nWenn Sie Ihr Passwort vergessen haben:\n1. Öffnen Sie unsere Seite **Passwort vergessen**.\n2. Geben Sie Ihre registrierte E-Mail-Adresse ein.\n3. Klicken Sie auf den sicheren Link in Ihrem Posteingang, um ein neues Passwort zu wählen.',
+          action: { label: '🔑 Passwort jetzt zurücksetzen', href: '/forgot-password', type: 'primary' },
+          suggestions: ['Wie buche ich einen Termin?', 'Wo ist die Klinik?', 'WhatsApp-Chat'],
+        };
+      }
+      if (currentLang === 'fr') {
+        return {
+          text: '🔑 **Réinitialisation du mot de passe :**\n\nSi vous avez oublié votre mot de passe :\n1. Accédez à notre page **Mot de passe oublié**.\n2. Saisissez votre adresse e-mail enregistrée.\n3. Ouvrez le lien sécurisé envoyé par e-mail pour définir un nouveau mot de passe.',
+          action: { label: '🔑 Réinitialiser mon mot de passe', href: '/forgot-password', type: 'primary' },
+          suggestions: ['Comment prendre rendez-vous ?', 'Où se trouve la clinique ?', 'Discuter sur WhatsApp'],
+        };
+      }
       return {
         text: '🔑 **Password Reset & Account Recovery:**\n\nIf you have forgotten your password or cannot access your patient dashboard:\n\n1. Go to our **Forgot Password** portal.\n2. Enter your registered email address.\n3. Open the secure reset link sent to your inbox to choose a new password.\n\n*Tip:* If you do not see the email within 2 minutes, please check your Spam/Junk folder.',
-        action: {
-          label: '🔑 Reset Your Password Now',
-          href: '/forgot-password',
-          type: 'primary',
-        },
+        action: { label: '🔑 Reset Your Password Now', href: '/forgot-password', type: 'primary' },
         suggestions: ['How do I book an appointment?', 'Where is the clinic located?', 'Contact Reception on WhatsApp'],
       };
     }
@@ -117,16 +159,30 @@ export default function ClinicConcierge() {
       q.includes('still academy') ||
       q.includes('biography') ||
       q.includes('background') ||
-      q.includes('acoor')
+      q.includes('acoor') ||
+      q.includes('über') ||
+      q.includes('fakultät') ||
+      q.includes('à propos') ||
+      q.includes('faculté')
     ) {
+      if (currentLang === 'de') {
+        return {
+          text: '🏛️ **Über ACOOR & Klinische Leitung:**\n\n**ACOOR** (Africa Clinic of Osteopathy and Rehabilitation) wurde von **Albert Nana Yaw Ntekoh** gegründet, der sein Studium der Osteopathischen Medizin in Deutschland absolvierte und als **Dozent und klinischer Ausbilder an der renommierten Still Academy in Deutschland** tätig ist.\n\nACOOR bringt erstklassige europäische Osteopathie-Standards, multidisziplinäre Rehabilitation und internationale Klinikberatung direkt nach Afrika.',
+          action: { label: '📖 Über Uns & Klinikphilosophie lesen', href: '/about', type: 'primary' },
+          suggestions: ['Was ist Osteopathie?', '4 Reha-Abteilungen', 'Globale Klinikberatung', 'Termin buchen'],
+        };
+      }
+      if (currentLang === 'fr') {
+        return {
+          text: "🏛️ **À propos d'ACOOR & Direction Clinique :**\n\n**ACOOR** (Africa Clinic of Osteopathy and Rehabilitation) a été fondée par **Albert Nana Yaw Ntekoh**, diplômé en Médecine Ostéopathique en Allemagne et **Conférencier et Instructeur Clinique à la prestigieuse Still Academy en Allemagne**.\n\nACOOR apporte les standards européens d'ostéopathie, la rééducation pluridisciplinaire et la coordination hospitalière internationale aux patients en Afrique.",
+          action: { label: '📖 Découvrir ACOOR & Notre Philosophie', href: '/about', type: 'primary' },
+          suggestions: ["Qu'est-ce que l'Ostéopathie ?", '4 Départements de Rééducation', 'Conseil Hospitalier Mondial', 'Prendre RDV'],
+        };
+      }
       return {
         text: '🏛️ **About ACOOR & Clinical Leadership:**\n\n**ACOOR** (Africa Clinic of Osteopathy and Rehabilitation) was founded by **Albert Nana Yaw Ntekoh**, who completed medical education in Osteopathic Medicine in Germany and is an appointed **Lecturer and Clinical Instructor at the renowned Still Academy in Germany**—one of Europe’s leading osteopathic academic institutions.\n\nACOOR was founded to bring world-class European osteopathic standards, multidisciplinary rehabilitation, and international hospital coordination directly to patients in Africa.',
-        action: {
-          label: '📖 Read About Us & Clinical Philosophy',
-          href: '/about',
-          type: 'primary'
-        },
-        suggestions: ['What is Osteopathy?', 'The 5 Pillars of Osteopathy', 'Global Hospital Advisory', 'Book a Consultation']
+        action: { label: '📖 Read About Us & Clinical Philosophy', href: '/about', type: 'primary' },
+        suggestions: ['What is Osteopathy?', 'The 5 Pillars of Osteopathy', 'Global Hospital Advisory', 'Book a Consultation'],
       };
     }
 
@@ -134,17 +190,28 @@ export default function ClinicConcierge() {
     if (
       q.includes('osteopath') ||
       q.includes('pillar') ||
-      q.includes('what is osteopathy') ||
-      q.includes('who is an osteopath')
+      q.includes('säule') ||
+      q.includes('pilier') ||
+      q.includes('ostéopath')
     ) {
+      if (currentLang === 'de') {
+        return {
+          text: '🩺 **Was ist Osteopathie?**\nDie Osteopathie ist eine evidenzbasierte, ganzheitliche Medizinwissenschaft, die das Zusammenspiel von Struktur und Funktion des Körpers behandelt und die natürliche Selbstheilung aktiviert.\n\n🏛️ **Die 5 Säulen der Osteopathie:**\n1. **Biomechanisches Modell (Parietal):** Gelenke, Wirbelsäule, Haltung & Faszien.\n2. **Neurologisches Modell:** Regulierung des zentralen & autonomen Nervensystems.\n3. **Respiratorisch-Zirkulatorisches Modell:** Durchblutung & Lymphfluss.\n4. **Metabolisch-Viszerales Modell:** Mobilität der inneren Organe & Stoffwechsel.\n5. **Biopsychosoziales Modell:** Kraniosakrale Balance & Stressabbau.',
+          action: { label: '📖 Die 5 Säulen der Osteopathie entdecken', href: '/about', type: 'primary' },
+          suggestions: ['4 Reha-Abteilungen', 'Über ACOOR & Fakultät', 'Termin buchen'],
+        };
+      }
+      if (currentLang === 'fr') {
+        return {
+          text: "🩺 **Qu'est-ce que l'Ostéopathie ?**\nL'ostéopathie est une science médicale holistique fondée sur les preuves qui traite l'interconnexion entre la structure et la fonction du corps afin de restaurer la mobilité et l'auto-guérison.\n\n🏛️ **Les 5 Piliers de l'Ostéopathie :**\n1. **Modèle Biomécanique (Pariétal) :** Articulations, rachis, posture & fascias.\n2. **Modèle Neurologique :** Équilibre du système nerveux et apaisement de la douleur.\n3. **Modèle Respiratoire & Circulatoire :** Flux artériel et drainage lymphatique.\n4. **Modèle Métabolique & Viscéral :** Mobilité des organes internes & vitalité.\n5. **Modèle Biopsychosocial :** Harmonie crânio-sacrée & équilibre corps-esprit.",
+          action: { label: "📖 Explorer les 5 Piliers de l'Ostéopathie", href: '/about', type: 'primary' },
+          suggestions: ['4 Départements de Rééducation', 'À propos d’ACOOR & Faculté', 'Prendre RDV'],
+        };
+      }
       return {
         text: '🩺 **What is Osteopathy?**\nOsteopathy is an evidence-informed holistic medical science focusing on the interconnection between the body’s structure and function. Rather than merely masking symptoms, it restores mobility and natural self-healing.\n\n🏛️ **The 5 Pillars of Osteopathy:**\n1. **Biomechanical Model (Parietal):** Joint articulation, spine, posture & fascial mobility.\n2. **Neurological Model:** Regulating central & autonomic nervous pathways; calming pain reflexes.\n3. **Respiratory & Circulatory Model:** Optimizing arterial supply and lymphatic drainage.\n4. **Metabolic & Visceral Model:** Internal organ mobility, digestion & cellular vitality.\n5. **Biopsychosocial Model:** Craniosacral harmony, stress release & mind-body balance.',
-        action: {
-          label: '📖 Explore 5 Pillars & Who is an Osteopath',
-          href: '/about',
-          type: 'primary'
-        },
-        suggestions: ['4 Rehabilitation Departments', 'Still Academy Faculty Background', 'Book a Consultation']
+        action: { label: '📖 Explore 5 Pillars & Who is an Osteopath', href: '/about', type: 'primary' },
+        suggestions: ['4 Rehabilitation Departments', 'Still Academy Faculty Background', 'Book a Consultation'],
       };
     }
 
@@ -157,21 +224,52 @@ export default function ClinicConcierge() {
       q.includes('germany') ||
       q.includes('europe') ||
       q.includes('travel') ||
-      q.includes('second opinion')
+      q.includes('second opinion') ||
+      q.includes('klinikberatung') ||
+      q.includes('deutschland') ||
+      q.includes('zweitmeinung') ||
+      q.includes('mondial') ||
+      q.includes('hospitalier') ||
+      q.includes('allemagne') ||
+      q.includes('deuxième avis')
     ) {
+      if (currentLang === 'de') {
+        return {
+          text: '🌐 **Unsere Globale Klinikberatung:**\n\nEin zentraler Bestandteil der Mission von ACOOR ist die Verbindung von Patienten mit weltweit führenden Kliniken.\n\nÜber unser Netzwerk mit Spitzen-Universitätskliniken und orthopädischen Chirurgen in **Deutschland, der Schweiz und Großbritannien** bieten wir:\n• Ärztliche Zweitmeinungen zu MRT-Befunden & OP-Indikationen\n• Direkte medizinische Koordination für Spezialoperationen im Ausland\n• Nahtlose präoperative Vorbereitung und postoperative Reha in Accra.',
+          action: {
+            label: '💬 Anfrage zur Klinikberatung per WhatsApp',
+            href: 'https://wa.me/49123456789?text=Hallo%20ACOOR,%20ich%20m%C3%B6chte%20mich%20%C3%BCber%20die%20internationale%20Klinikberatung%20informieren',
+            isExternal: true,
+            type: 'whatsapp',
+          },
+          suggestions: ['Über ACOOR & Fakultät', 'Post-OP Rehabilitation', 'Termin buchen'],
+        };
+      }
+      if (currentLang === 'fr') {
+        return {
+          text: '🌐 **Notre Conseil Hospitalier Mondial :**\n\nUn pilier central de la mission d’ACOOR est de connecter les patients aux meilleures institutions médicales du monde.\n\nGrâce à notre réseau de cliniques universitaires et de chirurgiens orthopédistes en **Allemagne, en Suisse et au Royaume-Uni**, nous proposons :\n• Un deuxième avis médical expert sur vos IRM et indications chirurgicales\n• Une coordination médicale directe pour des interventions spécialisées à l’étranger\n• Une préparation préopératoire et une rééducation post-opératoire complète à Accra.',
+          action: {
+            label: '💬 Contacter le Conseil Hospitalier sur WhatsApp',
+            href: 'https://wa.me/49123456789?text=Bonjour%20ACOOR,%20je%20souhaite%20me%20renseigner%20sur%20le%20Conseil%20Hospitalier%20International',
+            isExternal: true,
+            type: 'whatsapp',
+          },
+          suggestions: ['À propos d’ACOOR', 'Rééducation Post-Chirurgicale', 'Prendre RDV'],
+        };
+      }
       return {
         text: '🌐 **Our Global Hospital Advisory:**\n\nA core pillar of ACOOR’s mission is connecting African patients with the world’s leading medical institutions.\n\nThrough ACOOR’s clinical network with top university clinics and orthopedic surgeons across **Germany, Switzerland, and the UK**, we provide:\n• Expert second opinions on MRI scans & surgery recommendations\n• Direct medical coordination for specialized operations abroad\n• Seamless pre-surgery preparation and post-surgical rehabilitation back home in Accra.',
         action: {
           label: '💬 Inquire About Hospital Advisory via WhatsApp',
           href: 'https://wa.me/49123456789?text=Hello%20ACOOR,%20I%20would%20like%20to%20inquire%20about%20your%20International%20Hospital%20Advisory',
           isExternal: true,
-          type: 'whatsapp'
+          type: 'whatsapp',
         },
-        suggestions: ['About ACOOR', 'Post-Surgery Rehabilitation', 'Book a Consultation']
+        suggestions: ['About ACOOR', 'Post-Surgery Rehabilitation', 'Book a Consultation'],
       };
     }
 
-    // D. Multidisciplinary Rehabilitation (Physiotherapy, Ergotherapie, Logopädie, Post-Surgery)
+    // D. Multidisciplinary Rehabilitation
     if (
       q.includes('rehab') ||
       q.includes('ergotherapie') ||
@@ -180,159 +278,31 @@ export default function ClinicConcierge() {
       q.includes('logopadie') ||
       q.includes('logopädie') ||
       q.includes('speech') ||
-      q.includes('swallowing')
+      q.includes('swallowing') ||
+      q.includes('abteilung') ||
+      q.includes('rééducation') ||
+      q.includes('ergothérapie') ||
+      q.includes('orthophonie') ||
+      q.includes('département')
     ) {
+      if (currentLang === 'de') {
+        return {
+          text: '🏥 **Multidisziplinäre Rehabilitation bei ACOOR:**\n\nWir bieten 4 integrierte Fachabteilungen:\n\n1. **Physiotherapie:** Manuelle Gelenkmobilisation, Sport-Reha, Wirbelsäulendekompression & Elektrotherapie.\n2. **Ergotherapie:** Feinmotorik, Handrehabilitation, Schlaganfall-Reha & Alltagsunabhängigkeit.\n3. **Logopädie (Sprachtherapie):** Behandlung von Sprach-, Stimm-, Sprech- und Schluckstörungen (Dysphagie).\n4. **Postoperative Spezialnachsorge:** Strukturierte Genesung nach Gelenkersatz und Wirbelsäulen-OPs.',
+          action: { label: '📖 Alle Reha-Abteilungen ansehen', href: '/about#rehabilitation', type: 'primary' },
+          suggestions: ['Post-OP-Reha buchen', 'Manuelle Therapie', 'WhatsApp-Chat'],
+        };
+      }
+      if (currentLang === 'fr') {
+        return {
+          text: '🏥 **Rééducation Pluridisciplinaire chez ACOOR :**\n\nNous disposons de 4 départements cliniques intégrés :\n\n1. **Kinésithérapie (Physiotherapie) :** Mobilisation articulaire manuelle, réathlétisation sportive, décompression vertébrale & électrothérapie.\n2. **Ergothérapie :** Motricité fine, rééducation de la main, récupération post-AVC & autonomie quotidienne.\n3. **Orthophonie (Logopädie) :** Traitement des troubles de la parole, de la voix et de la déglutition (dysphagie).\n4. **Soins Post-Chirurgicaux Spécialisés :** Suivi structuré après prothèse articulaire et chirurgie du rachis.',
+          action: { label: '📖 Voir Tous les Services de Rééducation', href: '/about#rehabilitation', type: 'primary' },
+          suggestions: ['Réserver Suivi Post-Op', 'Thérapie Manuelle', 'Discuter sur WhatsApp'],
+        };
+      }
       return {
         text: '🏥 **Multidisciplinary Rehabilitation at ACOOR:**\n\nWe provide 4 integrated clinical departments:\n\n1. **Physical Therapy (Physiotherapie):** Manual joint mobilization, sports rehab, spinal decompression & electrotherapy.\n2. **Occupational Therapy (Ergotherapie):** Regaining fine motor control, hand rehabilitation, stroke recovery & ergonomic independence.\n3. **Speech & Language Therapy (Logopädie):** Treatment for speech, voice, communication, and swallowing disorders (dysphagia).\n4. **Post-Surgical Specialized Care:** Structured recovery following orthopedic joint replacements and spine surgeries.',
-        action: {
-          label: '📖 View All Rehabilitation Services',
-          href: '/about',
-          type: 'primary'
-        },
-        suggestions: ['Book Post-Surgery Care', 'Manual Therapy', 'Chat with ACOOR on WhatsApp']
-      };
-    }
-
-    // 2. Back & Neck Pain
-    if (
-      q.includes('back') ||
-      q.includes('neck') ||
-      q.includes('spine') ||
-      q.includes('sciatica') ||
-      q.includes('lumbar') ||
-      q.includes('stiff') ||
-      q.includes('disc') ||
-      q.includes('hernia')
-    ) {
-      return {
-        text: 'For back, neck, and spinal discomfort, ACOOR recommends our **Manual Therapy & Spinal Realignment** program.\n\nThis hands-on therapy decompresses restricted spinal segments, releases muscle spasms, and restores comfortable pain-free mobility.',
-        action: {
-          label: '📅 Book Manual Therapy (300 GHS)',
-          href: '/book?service=manual-therapy',
-          type: 'primary'
-        },
-        suggestions: ['How much is the deposit?', 'What should I wear to my visit?', 'Chat on WhatsApp']
-      };
-    }
-
-    // 3. Sports Injury & Sprains
-    if (
-      q.includes('sport') ||
-      q.includes('football') ||
-      q.includes('ankle') ||
-      q.includes('knee') ||
-      q.includes('acl') ||
-      q.includes('hamstring') ||
-      q.includes('muscle tear') ||
-      q.includes('sprain') ||
-      q.includes('run')
-    ) {
-      return {
-        text: 'For sports injuries, ligament strains, and muscle pulls, we specialize in **Sports Physiotherapy & Athletic Rehab**.\n\nWe provide biomechanical movement screenings, progressive muscle loading, and functional return-to-sport testing to get you back to peak performance safely.',
-        action: {
-          label: '📅 Book Sports Physio Visit',
-          href: '/book?service=sports-physio',
-          type: 'primary'
-        },
-        suggestions: ['What happens during the first visit?', 'Do you accept insurance?', 'Chat on WhatsApp']
-      };
-    }
-
-    // 4. Post-Surgery Recovery
-    if (
-      q.includes('surgery') ||
-      q.includes('operation') ||
-      q.includes('replacement') ||
-      q.includes('post-op') ||
-      q.includes('fracture')
-    ) {
-      return {
-        text: 'We provide structured, surgeon-aligned **Post-Surgical Orthopedic Recovery** protocols for knee replacements, hip surgeries, arthroscopic repairs, and fractures.\n\nOur clinical team ensures safe passive-to-active range of motion progression while preventing scar tissue stiffness.',
-        action: {
-          label: '📅 Book Post-Surgical Rehab',
-          href: '/book?service=post-surgery',
-          type: 'primary'
-        },
-        suggestions: ['What documents should I bring?', 'Where is the clinic located?']
-      };
-    }
-
-    // 5. Swelling / Lymphatic Drainage
-    if (
-      q.includes('swell') ||
-      q.includes('fluid') ||
-      q.includes('edema') ||
-      q.includes('lymph') ||
-      q.includes('circulation')
-    ) {
-      return {
-        text: 'Our **Medical Lymphatic Drainage & Edema Care** utilizes specialized gentle decongestive techniques to stimulate lymphatic circulation, rapidly clearing post-operative fluid accumulation and reducing heavy, swollen limbs.',
-        action: {
-          label: '📅 Book Lymphatic Therapy',
-          href: '/book?service=lymphatic-drainage',
-          type: 'primary'
-        },
-        suggestions: ['Consultation pricing', 'Location in Pokuasi']
-      };
-    }
-
-    // 6. Muscle Knots / Massage / Trigger Point / Headaches
-    if (
-      q.includes('knot') ||
-      q.includes('massage') ||
-      q.includes('deep tissue') ||
-      q.includes('headache') ||
-      q.includes('trigger') ||
-      q.includes('myofascial')
-    ) {
-      return {
-        text: 'Our **Trigger Point & Myofascial Deep Release** targets hyper-irritable muscle knots to eliminate referred pain, release chronic shoulder tension, and relieve persistent tension headaches.',
-        action: {
-          label: '📅 Book Deep Tissue Session',
-          href: '/book?service=trigger-point',
-          type: 'primary'
-        },
-        suggestions: ['What are your opening hours?', 'Book an appointment']
-      };
-    }
-
-    // 7. Tech-Neck & Posture
-    if (
-      q.includes('posture') ||
-      q.includes('desk') ||
-      q.includes('sitting') ||
-      q.includes('tech neck') ||
-      q.includes('shoulder')
-    ) {
-      return {
-        text: 'Suffering from desk strain? Our **Cervical Spine, Neck & Posture Alignment** program corrects tech-neck, rounded shoulders, and upper back tightness through spinal mobilization and ergonomic strengthening.',
-        action: {
-          label: '📅 Book Posture Alignment',
-          href: '/book?service=posture-care',
-          type: 'primary'
-        },
-        suggestions: ['Where is the clinic?', 'Pricing & Fees']
-      };
-    }
-
-    // 8. Chronic Pain / Ultrasound / Shockwave
-    if (
-      q.includes('ultrasound') ||
-      q.includes('shockwave') ||
-      q.includes('electro') ||
-      q.includes('chronic') ||
-      q.includes('tendon') ||
-      q.includes('bursitis') ||
-      q.includes('arthritis')
-    ) {
-      return {
-        text: 'For chronic joint pain and tendonitis, we offer **Advanced Electrotherapy & Deep Ultrasound**.\n\nThis modality stimulates deep collagen repair, increases local blood supply, and breaks down stubborn calcified tissues.',
-        action: {
-          label: '📅 Book Advanced Rehab Session',
-          href: '/book?service=advanced-rehab',
-          type: 'primary'
-        },
-        suggestions: ['Pricing & Insurance', 'What should I wear?']
+        action: { label: '📖 View All Rehabilitation Services', href: '/about#rehabilitation', type: 'primary' },
+        suggestions: ['Book Post-Surgery Care', 'Manual Therapy', 'Chat with ACOOR on WhatsApp'],
       };
     }
 
@@ -345,34 +315,38 @@ export default function ClinicConcierge() {
       q.includes('deposit') ||
       q.includes('ghs') ||
       q.includes('rate') ||
-      q.includes('pay')
+      q.includes('pay') ||
+      q.includes('preis') ||
+      q.includes('kosten') ||
+      q.includes('anzahlung') ||
+      q.includes('gebühr') ||
+      q.includes('tarif') ||
+      q.includes('prix') ||
+      q.includes('coût') ||
+      q.includes('acompte')
     ) {
+      if (currentLang === 'de') {
+        return {
+          text: '💰 **Unsere transparente Preisübersicht:**\n\n• **Umfassende Behandlungssitzung:** 300 GHS (45–60 Min. 1-zu-1 mit zertifiziertem Spezialisten)\n• **Online-Anzahlung:** 90 GHS (30 % zur verbindlichen Reservierung Ihres Termins)\n• **Restbetrag:** 210 GHS zahlbar vor Ort in der Klinik.',
+          action: { label: '📅 Jetzt Termin buchen (90 GHS Anzahlung)', href: '/book', type: 'primary' },
+          suggestions: ['Akzeptieren Sie Krankenversicherungen?', 'Wo ist die Klinik in Pokuasi?', 'WhatsApp-Chat'],
+        };
+      }
+      if (currentLang === 'fr') {
+        return {
+          text: '💰 **Nos tarifs transparents :**\n\n• **Consultation & Séance Complète :** 300 GHS (45–60 min en individuel avec un spécialiste certifié)\n• **Acompte de Réservation en Ligne :** 90 GHS (30 % pour bloquer votre créneau)\n• **Solde Restant :** 210 GHS à régler sur place lors de votre rendez-vous.',
+          action: { label: '📅 Réserver un Créneau (Acompte 90 GHS)', href: '/book', type: 'primary' },
+          suggestions: ['Acceptez-vous les assurances ?', 'Où se trouve la clinique ?', 'Discuter sur WhatsApp'],
+        };
+      }
       return {
         text: 'Here is our transparent pricing:\n\n• **Comprehensive Session:** 300 GHS (45–60 min 1-on-1 with Certified Specialist)\n• **Online Booking Deposit:** 90 GHS (30% to reserve your exact Google Calendar slot)\n• **Remaining Balance:** 210 GHS paid at the clinic during your appointment.',
-        action: {
-          label: '📅 Book Slot Now (90 GHS Deposit)',
-          href: '/book',
-          type: 'primary'
-        },
-        suggestions: ['Do you accept health insurance?', 'Where is the clinic in Pokuasi?', 'Chat on WhatsApp']
+        action: { label: '📅 Book Slot Now (90 GHS Deposit)', href: '/book', type: 'primary' },
+        suggestions: ['Do you accept health insurance?', 'Where is the clinic in Pokuasi?', 'Chat on WhatsApp'],
       };
     }
 
-    // 10. Health Insurance
-    if (q.includes('insurance') || q.includes('nhis') || q.includes('coverage') || q.includes('claim')) {
-      return {
-        text: 'Yes! We welcome both private self-pay patients and major approved corporate and private health insurance schemes.\n\nPlease bring your valid membership card or policy slip, or message us directly on WhatsApp so our front desk can confirm your coverage in advance.',
-        action: {
-          label: '💬 Check Insurance on WhatsApp',
-          href: 'https://wa.me/49123456789?text=Hello%20ACOOR,%20I%20would%20like%20to%20verify%20my%20insurance%20coverage',
-          isExternal: true,
-          type: 'whatsapp'
-        },
-        suggestions: ['What are your opening hours?', 'Book an appointment']
-      };
-    }
-
-    // 11. Location, Address, Directions, Parking
+    // 11. Location, Address, Directions
     if (
       q.includes('location') ||
       q.includes('where') ||
@@ -381,64 +355,64 @@ export default function ClinicConcierge() {
       q.includes('accra') ||
       q.includes('map') ||
       q.includes('park') ||
-      q.includes('direction')
+      q.includes('direction') ||
+      q.includes('wo ') ||
+      q.includes('standort') ||
+      q.includes('adresse') ||
+      q.includes('où')
     ) {
+      if (currentLang === 'de') {
+        return {
+          text: '📍 **Standort der Klinik:**\nACOOR befindet sich in **Pokuasi, Accra, Ghana**.\n\nUnsere Klinik ist bequem erreichbar und verfügt über sichere Patientenparkplätze direkt vor Ort.',
+          action: { label: '🗺️ In Google Maps öffnen', href: 'https://maps.google.com/?q=Pokuasi,+Accra,+Ghana', isExternal: true, type: 'map' },
+          suggestions: ['Wie sind Ihre Öffnungszeiten?', 'Preise & Anzahlung?', 'Termin buchen'],
+        };
+      }
+      if (currentLang === 'fr') {
+        return {
+          text: '📍 **Adresse de la Clinique :**\nACOOR est située à **Pokuasi, Accra, Ghana**.\n\nLa clinique est facilement accessible et dispose d’un parking privé et sécurisé pour tous nos patients.',
+          action: { label: '🗺️ Ouvrir dans Google Maps', href: 'https://maps.google.com/?q=Pokuasi,+Accra,+Ghana', isExternal: true, type: 'map' },
+          suggestions: ['Quels sont vos horaires ?', 'Tarifs & Acompte ?', 'Prendre RDV'],
+        };
+      }
       return {
         text: '📍 **Clinic Location:**\nACOOR (Africa Clinic of Osteopathy & Rehabilitation) is located in **Pokuasi, Accra, Ghana**.\n\nWe are conveniently accessible with dedicated, secure on-site parking for all our patients.',
-        action: {
-          label: '🗺️ Open in Google Maps',
-          href: 'https://maps.google.com/?q=Pokuasi,+Accra,+Ghana',
-          isExternal: true,
-          type: 'map'
-        },
-        suggestions: ['What are your opening hours?', 'What treatments do you offer?', 'Book an appointment']
+        action: { label: '🗺️ Open in Google Maps', href: 'https://maps.google.com/?q=Pokuasi,+Accra,+Ghana', isExternal: true, type: 'map' },
+        suggestions: ['What are your opening hours?', 'What treatments do you offer?', 'Book an appointment'],
       };
     }
 
     // 12. Opening Hours
-    if (q.includes('hour') || q.includes('open') || q.includes('close') || q.includes('time') || q.includes('saturday') || q.includes('sunday')) {
+    if (
+      q.includes('hour') ||
+      q.includes('open') ||
+      q.includes('close') ||
+      q.includes('time') ||
+      q.includes('saturday') ||
+      q.includes('sunday') ||
+      q.includes('öffnungszeit') ||
+      q.includes('uhrzeit') ||
+      q.includes('horaire') ||
+      q.includes('ouvert')
+    ) {
+      if (currentLang === 'de') {
+        return {
+          text: '⏰ **Öffnungszeiten der Klinik:**\n\n• **Montag – Donnerstag:** 08:00 – 18:00 Uhr\n• **Freitag:** 08:00 – 15:00 Uhr\n• **Samstag & Sonntag:** Geschlossen *(dringende Post-OP-Termine nach Vereinbarung)*\n\nOnline-Buchungen sind rund um die Uhr möglich!',
+          action: { label: '📅 Freie Termine ansehen', href: '/book', type: 'primary' },
+          suggestions: ['Wo befindet sich die Klinik?', 'Preise & Anzahlung?'],
+        };
+      }
+      if (currentLang === 'fr') {
+        return {
+          text: '⏰ **Horaires de la Clinique :**\n\n• **Lundi – Jeudi :** 08h00 – 18h00\n• **Vendredi :** 08h00 – 15h00\n• **Samedi & Dimanche :** Fermé *(suivis post-opératoires urgents sur rendez-vous)*\n\nVous pouvez réserver votre créneau 24h/24 en ligne !',
+          action: { label: '📅 Voir les Disponibilités', href: '/book', type: 'primary' },
+          suggestions: ['Où se trouve la clinique ?', 'Tarifs & Acompte ?'],
+        };
+      }
       return {
         text: '⏰ **Clinic Hours:**\n\n• **Monday – Thursday:** 08:00 – 18:00\n• **Friday:** 08:00 – 15:00\n• **Saturday & Sunday:** Closed *(urgent post-op follow-ups by prior arrangement)*\n\nYou can book appointments 24/7 directly through our real-time calendar!',
-        action: {
-          label: '📅 View Real-Time Availability',
-          href: '/book',
-          type: 'primary'
-        },
-        suggestions: ['Where is the clinic?', 'How much does a session cost?']
-      };
-    }
-
-    // 13. What to wear or bring
-    if (q.includes('wear') || q.includes('bring') || q.includes('cloth') || q.includes('document') || q.includes('x-ray') || q.includes('mri')) {
-      return {
-        text: '👕 **What to wear:**\nPlease wear comfortable, flexible sportswear (shorts, t-shirt, sweatpants) so our clinical specialist can easily examine and mobilize your joints.\n\n📋 **What to bring:**\nPlease bring your photo ID and any previous X-rays, MRI scans, or doctor referral notes if you have them. If not, our clinical team will perform a full diagnostic assessment during your session.',
-        suggestions: ['How long does a session take?', 'Book an appointment']
-      };
-    }
-
-    // 14. Session Duration
-    if (q.includes('duration') || q.includes('long') || q.includes('minute') || q.includes('session')) {
-      return {
-        text: '⏱️ Each standard clinical appointment takes approximately **45 to 60 minutes**.\n\nThis includes a comprehensive diagnostic assessment, personalized hands-on therapy, and take-home functional exercise instructions.',
-        action: {
-          label: '📅 Book Your 45–60 Min Session',
-          href: '/book',
-          type: 'primary'
-        },
-        suggestions: ['Pricing & Fees', 'Clinic Location']
-      };
-    }
-
-    // 15. Cancel or Reschedule
-    if (q.includes('cancel') || q.includes('reschedule') || q.includes('change date') || q.includes('change time')) {
-      return {
-        text: 'You can easily reschedule or cancel an existing appointment directly from your **Patient Dashboard** up to 24 hours prior to your scheduled time.\n\nIf you need urgent assistance within 24 hours, please message us directly on WhatsApp.',
-        action: {
-          label: '👤 Open Patient Dashboard',
-          href: '/dashboard',
-          type: 'secondary'
-        },
-        suggestions: ['Chat on WhatsApp', 'Clinic Opening Hours']
+        action: { label: '📅 View Real-Time Availability', href: '/book', type: 'primary' },
+        suggestions: ['Where is the clinic?', 'How much does a session cost?'],
       };
     }
 
@@ -453,42 +427,71 @@ export default function ClinicConcierge() {
       q.includes('human') ||
       q.includes('reception') ||
       q.includes('doctor') ||
-      q.includes('albert')
+      q.includes('albert') ||
+      q.includes('kontakt') ||
+      q.includes('telefon') ||
+      q.includes('contacter') ||
+      q.includes('téléphone')
     ) {
+      if (currentLang === 'de') {
+        return {
+          text: 'Sie erreichen unser ACOOR-Empfangsteam direkt per WhatsApp oder Telefon:\n\n• **WhatsApp:** Direktchat\n• **Telefon:** +49 123 456 789\n• **E-Mail:** info@albert-physio.de',
+          action: {
+            label: '💬 WhatsApp öffnen (+49 123 456 789)',
+            href: 'https://wa.me/49123456789?text=Hallo%20ACOOR,%20ich%20habe%20eine%20Frage%20zu%20Ihren%20Leistungen',
+            isExternal: true,
+            type: 'whatsapp',
+          },
+          suggestions: ['Online-Termin buchen', 'Standort & Öffnungszeiten'],
+        };
+      }
+      if (currentLang === 'fr') {
+        return {
+          text: 'Vous pouvez contacter directement la réception clinique d’ACOOR via WhatsApp ou par téléphone :\n\n• **WhatsApp :** Messagerie instantanée\n• **Téléphone :** +49 123 456 789\n• **E-mail :** info@albert-physio.de',
+          action: {
+            label: '💬 Ouvrir WhatsApp (+49 123 456 789)',
+            href: 'https://wa.me/49123456789?text=Bonjour%20ACOOR,%20j%27ai%20une%20question%20concernant%20vos%20soins',
+            isExternal: true,
+            type: 'whatsapp',
+          },
+          suggestions: ['Prendre RDV en ligne', 'Adresse & Horaires'],
+        };
+      }
       return {
         text: 'You can connect directly with ACOOR clinical reception staff via WhatsApp or phone right now:\n\n• **WhatsApp:** Instant messaging\n• **Phone:** +49 123 456 789\n• **Email:** info@albert-physio.de',
         action: {
           label: '💬 Open WhatsApp (+49 123 456 789)',
           href: 'https://wa.me/49123456789?text=Hello%20ACOOR,%20I%20have%20a%20question%20about%20your%20services',
           isExternal: true,
-          type: 'whatsapp'
+          type: 'whatsapp',
         },
-        suggestions: ['Book an appointment online', 'Clinic Location & Hours']
+        suggestions: ['Book an appointment online', 'Clinic Location & Hours'],
       };
     }
 
-    // 17. Which treatment do I need? (Interactive guide)
-    if (q.includes('treatment') || q.includes('service') || q.includes('offer') || q.includes('program') || q.includes('help me')) {
+    // Default Fallback in selected language
+    if (currentLang === 'de') {
       return {
-        text: 'ACOOR offers 8 specialized clinical programs:\n\n1. **Manual Therapy** (Spine, back & neck pain)\n2. **Sports Physio** (Sprains, athletic tears)\n3. **Post-Surgery Recovery** (Joint replacements)\n4. **Advanced Electrotherapy** (Chronic joint pain)\n5. **Lymphatic Drainage** (Swelling & fluid relief)\n6. **Trigger Point Release** (Muscle knots & headaches)\n7. **Posture Alignment** (Desk workers & tech-neck)\n8. **Functional Joint Mobility** (Osteoarthritis & aging)\n\nWhich of these conditions are you experiencing?',
-        suggestions: ['Back & Neck Pain', 'Sports Injury', 'Post-Surgery Rehab', 'Swelling & Edema', 'Muscle Knots']
+        text: 'Vielen Dank für Ihre Anfrage! ACOOR ist spezialisiert auf evidenzbasierte Osteopathie, Physiotherapie, Ergotherapie, Logopädie und internationale Klinikberatung.\n\nMöchten Sie direkt einen Termin buchen oder mit uns auf WhatsApp schreiben?',
+        action: { label: '📅 Online-Termin Buchen', href: '/book', type: 'primary' },
+        suggestions: t.concierge.initialSuggestions,
       };
     }
-
-    // Default Fallback
+    if (currentLang === 'fr') {
+      return {
+        text: "Merci pour votre message ! ACOOR est spécialisée en ostéopathie fondée sur les preuves, kinésithérapie, ergothérapie, orthophonie et conseil hospitalier international.\n\nSouhaitez-vous réserver un rendez-vous en ligne ou discuter avec nous sur WhatsApp ?",
+        action: { label: '📅 Prendre Rendez-vous en Ligne', href: '/book', type: 'primary' },
+        suggestions: t.concierge.initialSuggestions,
+      };
+    }
     return {
       text: `Thank you for asking! ACOOR specializes in evidence-based osteopathy and comprehensive rehabilitation tailored to your exact condition.\n\nWould you like to schedule an appointment, or speak directly with ACOOR on WhatsApp?`,
       action: {
         label: '📅 Book Appointment Online',
         href: '/book',
-        type: 'primary'
+        type: 'primary',
       },
-      suggestions: [
-        '🩺 Which treatment do I need?',
-        '💰 Fees & Deposit (300 GHS)',
-        '💬 Chat with ACOOR on WhatsApp',
-        '📍 Location in Pokuasi'
-      ]
+      suggestions: t.concierge.initialSuggestions,
     };
   };
 
@@ -500,16 +503,15 @@ export default function ClinicConcierge() {
       id: `user-${Date.now()}`,
       sender: 'user',
       text,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInputText('');
     setIsTyping(true);
 
-    // Simulate realistic typing delay (450ms)
     setTimeout(() => {
-      const botReply = getBotResponse(text);
+      const botReply = getBotResponse(text, lang);
       const botMessage: Message = {
         id: `bot-${Date.now()}`,
         sender: 'bot',
@@ -517,9 +519,9 @@ export default function ClinicConcierge() {
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         action: botReply.action,
         suggestions: botReply.suggestions,
-        isEmergency: botReply.isEmergency
+        isEmergency: botReply.isEmergency,
       };
-      setMessages(prev => [...prev, botMessage]);
+      setMessages((prev) => [...prev, botMessage]);
       setIsTyping(false);
     }, 450);
   };
@@ -535,17 +537,17 @@ export default function ClinicConcierge() {
       {
         id: 'welcome',
         sender: 'bot',
-        text: 'Hello again! 👋 How can I assist you with your health or booking today?',
-        time: 'Just now',
-        suggestions: INITIAL_SUGGESTIONS
-      }
+        text: t.concierge.resetWelcomeText,
+        time: t.concierge.justNow,
+        suggestions: t.concierge.initialSuggestions,
+      },
     ]);
   };
 
   return (
     <>
       {/* Floating Chat Trigger Button */}
-      <aside 
+      <aside
         style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: 1100 }}
         aria-label="Clinic Support Chatbot"
       >
@@ -554,7 +556,7 @@ export default function ClinicConcierge() {
             setIsOpen(!isOpen);
             setHasInteracted(true);
           }}
-          aria-label={isOpen ? 'Close Live Chat' : 'Chat with ACOOR Virtual Assistant'}
+          aria-label={isOpen ? t.concierge.closeChat : t.concierge.chatWithUs}
           style={{
             background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
             color: '#ffffff',
@@ -570,8 +572,8 @@ export default function ClinicConcierge() {
             fontSize: '0.94rem',
             transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease',
           }}
-          onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-2px)')}
-          onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0)')}
+          onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
         >
           <span style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
             <span style={{ fontSize: '1.3rem' }}>💬</span>
@@ -590,7 +592,7 @@ export default function ClinicConcierge() {
               />
             )}
           </span>
-          <span>{isOpen ? 'Close Chat' : 'Chat with Us'}</span>
+          <span>{isOpen ? t.concierge.closeChat : t.concierge.chatWithUs}</span>
         </button>
       </aside>
 
@@ -647,11 +649,11 @@ export default function ClinicConcierge() {
               </div>
               <div>
                 <h3 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 700, color: '#fff', fontFamily: "'Outfit', sans-serif" }}>
-                  ACOOR Live Support
+                  {t.concierge.headerTitle}
                 </h3>
                 <p style={{ margin: 0, fontSize: '0.75rem', opacity: 0.92, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                   <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#34d399', display: 'inline-block' }} />
-                  Africa Clinic of Osteopathy & Rehab • Online
+                  {t.concierge.headerSub}
                 </p>
               </div>
             </div>
@@ -679,7 +681,7 @@ export default function ClinicConcierge() {
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                aria-label="Close Chat"
+                aria-label={t.concierge.closeChat}
                 style={{
                   background: 'transparent',
                   border: 'none',
@@ -721,11 +723,14 @@ export default function ClinicConcierge() {
                     maxWidth: '85%',
                     padding: '0.85rem 1rem',
                     borderRadius: msg.sender === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                    background: msg.sender === 'user' 
-                      ? 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)' 
-                      : (msg.isEmergency ? '#fef2f2' : '#ffffff'),
-                    color: msg.sender === 'user' ? '#ffffff' : (msg.isEmergency ? '#991b1b' : '#1e293b'),
-                    border: msg.sender === 'user' ? 'none' : (msg.isEmergency ? '1px solid #fecaca' : '1px solid #e2e8f0'),
+                    background:
+                      msg.sender === 'user'
+                        ? 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)'
+                        : msg.isEmergency
+                        ? '#fef2f2'
+                        : '#ffffff',
+                    color: msg.sender === 'user' ? '#ffffff' : msg.isEmergency ? '#991b1b' : '#1e293b',
+                    border: msg.sender === 'user' ? 'none' : msg.isEmergency ? '1px solid #fecaca' : '1px solid #e2e8f0',
                     boxShadow: '0 2px 8px rgba(15, 23, 42, 0.05)',
                     fontSize: '0.88rem',
                     lineHeight: '1.48',
@@ -791,11 +796,11 @@ export default function ClinicConcierge() {
                           transition: 'all 0.15s ease',
                           textAlign: 'left',
                         }}
-                        onMouseEnter={e => {
+                        onMouseEnter={(e) => {
                           e.currentTarget.style.background = '#f0fdfa';
                           e.currentTarget.style.borderColor = '#0d9488';
                         }}
-                        onMouseLeave={e => {
+                        onMouseLeave={(e) => {
                           e.currentTarget.style.background = '#ffffff';
                           e.currentTarget.style.borderColor = '#ccfbf1';
                         }}
@@ -814,7 +819,7 @@ export default function ClinicConcierge() {
                 <span style={{ width: '6px', height: '6px', background: '#0d9488', borderRadius: '50%', animation: 'pulse 1s infinite alternate' }} />
                 <span style={{ width: '6px', height: '6px', background: '#0d9488', borderRadius: '50%', animation: 'pulse 1s infinite alternate 0.2s' }} />
                 <span style={{ width: '6px', height: '6px', background: '#0d9488', borderRadius: '50%', animation: 'pulse 1s infinite alternate 0.4s' }} />
-                <span style={{ fontSize: '0.75rem', color: '#64748b', marginLeft: '0.3rem' }}>Assistant is typing...</span>
+                <span style={{ fontSize: '0.75rem', color: '#64748b', marginLeft: '0.3rem' }}>{t.concierge.typing}</span>
               </div>
             )}
 
@@ -834,9 +839,9 @@ export default function ClinicConcierge() {
           >
             <input
               type="text"
-              placeholder="Ask about your pain, fees, hours, booking..."
+              placeholder={t.concierge.placeholder}
               value={inputText}
-              onChange={e => setInputText(e.target.value)}
+              onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyPress}
               style={{
                 flex: 1,
@@ -915,7 +920,6 @@ function getActionButtonStyle(type?: 'primary' | 'whatsapp' | 'secondary' | 'map
     };
   }
 
-  // default primary
   return {
     ...base,
     background: '#0d9488',

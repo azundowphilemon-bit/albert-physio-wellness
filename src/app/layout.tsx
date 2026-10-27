@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 import FloatingHome from './FloatingHome';
 import ClinicConcierge from './ClinicConcierge';
+import { LanguageProvider } from '@/lib/i18n';
+import { FloatingLanguageSwitcher } from './LanguageSwitcher';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://acoor-clinic.vercel.app'),
@@ -28,12 +30,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <FloatingHome />
-        <ClinicConcierge />
-        {children}
-        <footer>
-          &copy; {new Date().getFullYear()} ACOOR - Africa Clinic of Osteopathy and Rehabilitation. All rights reserved.
-        </footer>
+        <LanguageProvider>
+          <FloatingHome />
+          <FloatingLanguageSwitcher />
+          <ClinicConcierge />
+          {children}
+          <footer>
+            &copy; {new Date().getFullYear()} ACOOR - Africa Clinic of Osteopathy and Rehabilitation.
+          </footer>
+        </LanguageProvider>
       </body>
     </html>
   );

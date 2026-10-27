@@ -5,10 +5,12 @@ import { supabase } from '@/lib/supabase';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useLanguage } from '@/lib/i18n';
 
 function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -19,14 +21,12 @@ function ResetPasswordContent() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   
-  // null = still checking, true = session ready, false = invalid/expired link
   const [isSessionReady, setIsSessionReady] = useState<boolean | null>(null);
 
   useEffect(() => {
     let isMounted = true;
 
     async function verifyRecoverySession() {
-      // 1. Check if error is returned in URL parameters
       const urlError = searchParams.get('error_description') || searchParams.get('error');
       if (urlError) {
         if (isMounted) {
@@ -36,7 +36,6 @@ function ResetPasswordContent() {
         return;
       }
 
-      // 2. Check if a PKCE code was provided (?code=...)
       const code = searchParams.get('code');
       if (code) {
         const { error: exchangeErr } = await supabase.auth.exchangeCodeForSession(code);
@@ -54,7 +53,6 @@ function ResetPasswordContent() {
         }
       }
 
-      // 3. Check if session already exists
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         if (isMounted) {
@@ -63,7 +61,6 @@ function ResetPasswordContent() {
         }
       }
 
-      // 4. Listen for auth state change (such as hash fragment recovery token #access_token=...)
       const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
         if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) {
           if (isMounted) {
@@ -73,14 +70,12 @@ function ResetPasswordContent() {
         }
       });
 
-      // 5. Fallback timer if no session is detected within 1.5 seconds
       const timeoutId = setTimeout(async () => {
         if (!isMounted) return;
         const { data } = await supabase.auth.getSession();
         if (data.session) {
           setIsSessionReady(true);
         } else {
-          // If no code and no hash token was passed
           setIsSessionReady(false);
           if (!error) {
             setError('No active password reset session found. Security links expire after 1 hour or single use.');
@@ -131,7 +126,6 @@ function ResetPasswordContent() {
       setSuccess(true);
       setLoading(false);
 
-      // Redirect to dashboard where the user is now authenticated
       setTimeout(() => {
         router.push('/dashboard');
       }, 2500);
@@ -155,25 +149,25 @@ function ResetPasswordContent() {
         </div>
 
         <span style={{ display: 'inline-block', background: 'rgba(255,255,255,0.15)', color: '#fff', padding: '0.35rem 0.85rem', borderRadius: '50px', fontSize: '0.85rem', fontWeight: 600, width: 'fit-content', marginBottom: '1rem' }}>
-          Security & Access
+          {t.auth.resetBadge}
         </span>
 
         <h1 style={{ fontSize: 'clamp(2.2rem, 4vw, 3.2rem)', marginBottom: '1rem', color: '#fff', fontWeight: 800, lineHeight: 1.15 }}>
-          Set New Password
+          {t.auth.resetHeroTitle}
         </h1>
         <p style={{ fontSize: '1.1rem', color: '#e2e8f0', marginBottom: '2.5rem', lineHeight: 1.6, maxWidth: '520px' }}>
-          Create a secure, strong password to protect your medical consultations, appointments, and therapy plans.
+          {t.auth.resetHeroSub}
         </p>
 
         <div style={{ background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)', borderRadius: '14px', padding: '1.25rem', maxWidth: '480px', border: '1px solid rgba(255, 255, 255, 0.18)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#fff', fontWeight: 700, marginBottom: '0.5rem' }}>
             <span>🔒</span>
-            <span>Password Guidelines</span>
+            <span>{t.auth.passwordGuidelines}</span>
           </div>
           <ul style={{ color: '#e2e8f0', fontSize: '0.88rem', margin: 0, paddingLeft: '1.25rem', lineHeight: 1.6 }}>
-            <li>Must contain at least 6 characters</li>
-            <li>Use a mix of letters and numbers for higher protection</li>
-            <li>Keep your login credentials private and confidential</li>
+            <li>{t.auth.guideline1}</li>
+            <li>{t.auth.guideline2}</li>
+            <li>{t.auth.guideline3}</li>
           </ul>
         </div>
       </div>
@@ -184,19 +178,18 @@ function ResetPasswordContent() {
           
           <div style={{ marginBottom: '1.75rem' }}>
             <h2 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--secondary-color)', marginBottom: '0.5rem' }}>
-              Create New Password
+              {t.auth.resetFormTitle}
             </h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem' }}>
-              Please enter and confirm your new secure credentials below.
+              {t.auth.resetFormSub}
             </p>
           </div>
 
-          {/* Case 1: Verifying link */}
           {isSessionReady === null && (
             <div style={{ textAlign: 'center', padding: '2rem 1rem' }}>
               <div style={{ display: 'inline-block', width: '40px', height: '40px', border: '3px solid rgba(13,148,136,0.2)', borderTopColor: '#0d9488', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
               <p style={{ marginTop: '1rem', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-                Verifying your secure password reset link...
+                {t.auth.verifyingLink}
               </p>
               <style jsx>{`
                 @keyframes spin {
@@ -206,7 +199,6 @@ function ResetPasswordContent() {
             </div>
           )}
 
-          {/* Case 2: Link is invalid, expired, or session missing */}
           {isSessionReady === false && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', padding: '1.25rem', borderRadius: '12px' }}>
@@ -216,7 +208,7 @@ function ResetPasswordContent() {
                     <line x1="12" y1="8" x2="12" y2="12" />
                     <line x1="12" y1="16" x2="12.01" y2="16" />
                   </svg>
-                  <strong style={{ fontSize: '1rem', color: '#991b1b' }}>Reset Link Expired or Invalid</strong>
+                  <strong style={{ fontSize: '1rem', color: '#991b1b' }}>{t.auth.linkExpiredTitle}</strong>
                 </div>
                 <p style={{ fontSize: '0.9rem', color: '#b91c1c', margin: 0, lineHeight: 1.5 }}>
                   {error || 'For your security, password reset links are single-use and expire quickly. Please request a fresh reset link.'}
@@ -228,18 +220,17 @@ function ResetPasswordContent() {
                 className="btn primary"
                 style={{ width: '100%', padding: '0.85rem', textAlign: 'center', borderRadius: '10px' }}
               >
-                Request New Reset Link →
+                {t.auth.requestNewLinkBtn}
               </Link>
 
               <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
                 <Link href="/login" style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', textDecoration: 'none' }}>
-                  ← Return to Login
+                  {t.auth.backToLogin}
                 </Link>
               </div>
             </div>
           )}
 
-          {/* Case 3: Session is ready */}
           {isSessionReady === true && (
             <>
               {error && (
@@ -256,10 +247,10 @@ function ResetPasswordContent() {
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                         <polyline points="22 4 12 14.01 9 11.01" />
                       </svg>
-                      <strong style={{ fontSize: '1rem', color: '#065f46' }}>Password Updated!</strong>
+                      <strong style={{ fontSize: '1rem', color: '#065f46' }}>{t.auth.passwordUpdatedTitle}</strong>
                     </div>
                     <p style={{ fontSize: '0.92rem', color: '#047857', margin: 0, lineHeight: 1.5 }}>
-                      Your password has been changed successfully. You are being redirected to your dashboard...
+                      {t.auth.passwordUpdatedSub}
                     </p>
                   </div>
 
@@ -269,22 +260,21 @@ function ResetPasswordContent() {
                     className="btn primary"
                     style={{ width: '100%', padding: '0.85rem', textAlign: 'center', borderRadius: '10px' }}
                   >
-                    Go to Dashboard Now →
+                    {t.auth.goToDashboardBtn}
                   </button>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                  {/* New Password */}
                   <div className="form-group">
                     <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: 'var(--secondary-color)', marginBottom: '0.4rem' }}>
-                      New Password
+                      {t.auth.newPasswordLabel}
                     </label>
                     <div style={{ position: 'relative' }}>
                       <input
                         type={showPassword ? 'text' : 'password'}
                         required
                         minLength={6}
-                        placeholder="At least 6 characters"
+                        placeholder={t.auth.atLeast6Chars}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         style={{
@@ -311,17 +301,16 @@ function ResetPasswordContent() {
                     </div>
                   </div>
 
-                  {/* Confirm Password */}
                   <div className="form-group">
                     <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: 'var(--secondary-color)', marginBottom: '0.4rem' }}>
-                      Confirm New Password
+                      {t.auth.confirmPasswordLabel}
                     </label>
                     <div style={{ position: 'relative' }}>
                       <input
                         type={showConfirmPassword ? 'text' : 'password'}
                         required
                         minLength={6}
-                        placeholder="Re-enter your password"
+                        placeholder={t.auth.confirmPasswordLabel}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         style={{
@@ -348,15 +337,14 @@ function ResetPasswordContent() {
                     </div>
                   </div>
 
-                  {/* Requirements checklist */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.82rem', padding: '0.5rem 0' }}>
                     <div style={{ color: isLengthValid ? '#059669' : '#94a3b8', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                       <span>{isLengthValid ? '✓' : '○'}</span>
-                      <span>At least 6 characters</span>
+                      <span>{t.auth.atLeast6Chars}</span>
                     </div>
                     <div style={{ color: isMatch ? '#059669' : '#94a3b8', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                       <span>{isMatch ? '✓' : '○'}</span>
-                      <span>Passwords match</span>
+                      <span>{t.auth.passwordsMatch}</span>
                     </div>
                   </div>
 
@@ -378,7 +366,7 @@ function ResetPasswordContent() {
                       opacity: (loading || !isLengthValid || !isMatch) ? 0.6 : 1,
                     }}
                   >
-                    {loading ? 'Saving New Password...' : 'Save & Secure Account →'}
+                    {loading ? t.auth.savingNewPassword : t.auth.saveSecureAccountBtn}
                   </button>
                 </form>
               )}
@@ -387,7 +375,7 @@ function ResetPasswordContent() {
 
           <div style={{ marginTop: '2rem', paddingTop: '1.25rem', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'center', fontSize: '0.88rem' }}>
             <Link href="/login" style={{ color: 'var(--primary-color)', fontWeight: 600, textDecoration: 'none' }}>
-              ← Return to Login
+              {t.auth.backToLogin}
             </Link>
           </div>
         </div>

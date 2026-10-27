@@ -2,9 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useLanguage } from '@/lib/i18n';
 
 export default function FloatingHome() {
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   // Don't show the home button if we are already on the home page
   if (pathname === '/') {
@@ -28,7 +30,7 @@ export default function FloatingHome() {
         gap: '0.5rem',
         fontSize: '0.9rem'
       }}>
-         🏠 <span style={{ display: 'none' }} className="sm-show">Home</span>
+         🏠 <span style={{ display: 'none' }} className="sm-show">{t.common.home}</span>
       </Link>
       <style dangerouslySetInnerHTML={{__html: `
         @media (min-width: 640px) { .sm-show { display: inline !important; } }
