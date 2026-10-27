@@ -225,7 +225,7 @@ export default function DashboardPage() {
           <div className="logo-section">
             <span className="brand-text">{t.common.patientPortal}</span>
           </div>
-          <div className="nav-actions">
+          <div className="nav-lang-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <LanguageSwitcher />
             <button onClick={handleLogout} className="btn outline sm-btn">{t.common.logout}</button>
           </div>

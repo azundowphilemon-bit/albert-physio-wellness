@@ -20,7 +20,7 @@ export default function LandingPage() {
               <span className="brand-text" style={{ display: 'block', fontSize: '1.25rem', color: 'var(--secondary-color)' }}>
                 ACOOR
               </span>
-              <span style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontWeight: 600, letterSpacing: '0.02em' }}>
+              <span className="brand-subtext">
                 {t.common.brandSubtitle}
               </span>
             </div>
@@ -34,9 +34,13 @@ export default function LandingPage() {
             <Link href="/about#rehabilitation" className="nav-link">{t.common.rehabilitation}</Link>
           </nav>
 
-          {/* Right Action, Language Switcher & Registration Menu */}
-          <div className="nav-actions">
+          {/* Language Switcher (top-right on mobile & inline on desktop) */}
+          <div className="nav-lang-wrapper">
             <LanguageSwitcher />
+          </div>
+
+          {/* Right Action & Registration Menu */}
+          <div className="nav-actions">
             <Link href="/login" className="nav-link">{t.common.login}</Link>
             <Link href="/register" className="btn outline sm-btn">{t.common.register}</Link>
             <Link href="/book" className="btn primary sm-btn">{t.common.bookAppointment}</Link>
