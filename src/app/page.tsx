@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/i18n';
@@ -7,6 +8,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 
 export default function LandingPage() {
   const { t } = useLanguage();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="landing-page">
@@ -14,6 +16,46 @@ export default function LandingPage() {
       {/* Navbar */}
       <header className="navbar">
         <div className="container nav-container">
+          {/* Top-Left Mobile Menu Button + Dropdown (Mobile Only) */}
+          <div className="mobile-menu-wrapper">
+            <button
+              type="button"
+              className="mobile-menu-btn"
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              aria-label="Toggle navigation menu"
+              aria-expanded={mobileMenuOpen}
+            >
+              <span className="hamburger-icon">{mobileMenuOpen ? '✕' : '☰'}</span>
+            </button>
+
+            {mobileMenuOpen && (
+              <nav className="mobile-menu-dropdown" aria-label="Mobile navigation">
+                <Link href="/" className="mobile-menu-link" onClick={() => setMobileMenuOpen(false)}>
+                  🏠 {t.common.home}
+                </Link>
+                <Link href="/about" className="mobile-menu-link highlight" onClick={() => setMobileMenuOpen(false)}>
+                  🏛️ {t.common.aboutUs}
+                </Link>
+                <Link href="#treatments" className="mobile-menu-link" onClick={() => setMobileMenuOpen(false)}>
+                  🩺 {t.common.treatments}
+                </Link>
+                <Link href="/about#rehabilitation" className="mobile-menu-link" onClick={() => setMobileMenuOpen(false)}>
+                  🏥 {t.common.rehabilitation}
+                </Link>
+                <div className="mobile-menu-divider" />
+                <Link href="/login" className="mobile-menu-link" onClick={() => setMobileMenuOpen(false)}>
+                  🔑 {t.common.login}
+                </Link>
+                <Link href="/register" className="mobile-menu-link" onClick={() => setMobileMenuOpen(false)}>
+                  📝 {t.common.register}
+                </Link>
+                <Link href="/book" className="btn primary sm-btn mobile-menu-cta" onClick={() => setMobileMenuOpen(false)}>
+                  📅 {t.common.bookAppointment}
+                </Link>
+              </nav>
+            )}
+          </div>
+
           <Link href="/" className="logo-section" style={{ textDecoration: 'none' }}>
             <Image src="/logo.png" alt="ACOOR Logo" width={52} height={52} className="logo-sm" />
             <div>
@@ -26,7 +68,7 @@ export default function LandingPage() {
             </div>
           </Link>
 
-          {/* Centered Navigation Menu */}
+          {/* Centered Navigation Menu (Laptop / Desktop) */}
           <nav className="nav-center">
             <Link href="/" className="nav-link">{t.common.home}</Link>
             <Link href="/about" className="nav-link nav-highlight">{t.common.aboutUs}</Link>
@@ -39,11 +81,11 @@ export default function LandingPage() {
             <LanguageSwitcher />
           </div>
 
-          {/* Right Action & Registration Menu */}
+          {/* Right Action & Registration Menu (Book Appointment occupies the menu row on mobile) */}
           <div className="nav-actions">
-            <Link href="/login" className="nav-link">{t.common.login}</Link>
-            <Link href="/register" className="btn outline sm-btn">{t.common.register}</Link>
-            <Link href="/book" className="btn primary sm-btn">{t.common.bookAppointment}</Link>
+            <Link href="/login" className="nav-link desktop-only-nav-item">{t.common.login}</Link>
+            <Link href="/register" className="btn outline sm-btn desktop-only-nav-item">{t.common.register}</Link>
+            <Link href="/book" className="btn primary sm-btn mobile-book-btn">{t.common.bookAppointment}</Link>
           </div>
         </div>
       </header>
